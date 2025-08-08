@@ -3,6 +3,7 @@ package active_campaign
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 // ContactsService handles communication with contact related
@@ -60,6 +61,30 @@ type CreateContactResponse struct {
 	Contact *CreatedContact `json:"contact"`
 }
 
+// Create creates a new contact in ActiveCampaign.
+//
+// API Reference: https://developers.activecampaign.com/reference#create-contact
+//
+// Parameters:
+//
+//	contact: Pointer to CreateContactRequest containing the contact details to create.
+//
+// Returns:
+//
+//	*CreateContactResponse: The created contact details returned by the API.
+//	*Response: The raw HTTP response wrapper.
+//	error: Any error encountered during the request.
+//
+// Example:
+//
+//	req := &active_campaign.CreateContactRequest{
+//	  Contact: &active_campaign.Contact{
+//	    Email: "user@example.com",
+//	    FirstName: "John",
+//	    LastName: "Doe",
+//	  },
+//	}
+//	resp, httpResp, err := client.Contacts.Create(req)
 func (s *ContactsService) Create(contact *CreateContactRequest) (*CreateContactResponse, *Response, error) {
 	u := "contacts"
 	req, err := s.client.NewRequest(http.MethodPost, u, contact)
@@ -186,6 +211,30 @@ type UpdateContactListStatusResponse struct {
 	} `json:"contactList"`
 }
 
+// UpdateListStatusForContact updates the status of a contact for a specific list in ActiveCampaign.
+//
+// API Reference: https://developers.activecampaign.com/reference#update-list-status-for-contact
+//
+// Parameters:
+//
+//	contact: Pointer to UpdateListStatusForContactRequest containing the contact and list status details.
+//
+// Returns:
+//
+//	*UpdateContactListStatusResponse: The updated contact-list status response.
+//	*Response: The raw HTTP response wrapper.
+//	error: Any error encountered during the request.
+//
+// Example:
+//
+//	req := &active_campaign.UpdateListStatusForContactRequest{
+//	  ContactList: &active_campaign.ContactList{
+//	    List: "1",
+//	    Contact: "123",
+//	    Status: "1",
+//	  },
+//	}
+//	resp, httpResp, err := client.Contacts.UpdateListStatusForContact(req)
 func (s *ContactsService) UpdateListStatusForContact(contact *UpdateListStatusForContactRequest) (*UpdateContactListStatusResponse, *Response, error) {
 	u := "contactLists"
 	req, err := s.client.NewRequest(http.MethodPost, u, contact)
@@ -207,9 +256,26 @@ type ContactSearchResponse struct {
 	Contact []*CreatedContact `json:"contacts"`
 }
 
-// Search Contact by email.
+// SearchEmail searches for a contact by email address using the ActiveCampaign API.
+//
+// API Reference: https://developers.activecampaign.com/reference#list-all-contacts
+//
+// Parameters:
+//
+//	email: The email address to search for. This will be URL-encoded automatically.
+//
+// Returns:
+//
+//	*ContactSearchResponse: The search results containing matching contacts.
+//	*Response: The raw HTTP response wrapper.
+//	error: Any error encountered during the request.
+//
+// Example:
+//
+//	resp, httpResp, err := client.Contacts.SearchEmail("user@example.com")
 func (s *ContactsService) SearchEmail(email string) (*ContactSearchResponse, *Response, error) {
-	u := fmt.Sprintf("contacts?email=%s", email)
+	encodedEmail := url.QueryEscape(email)
+	u := fmt.Sprintf("contacts?email=%s", encodedEmail)
 	req, err := s.client.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, nil, err
