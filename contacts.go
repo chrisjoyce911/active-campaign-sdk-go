@@ -1,4 +1,8 @@
-package active_campaign
+//go:build ignore
+
+package contacts
+
+// Legacy top-level contacts file - ignored during v3 migration.
 
 import (
 	"fmt"

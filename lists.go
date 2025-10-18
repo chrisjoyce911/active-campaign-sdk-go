@@ -1,3 +1,5 @@
+//go:build ignore
+
 package active_campaign
 
 import "net/http"
