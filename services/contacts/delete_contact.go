@@ -1,10 +1,8 @@
-//go:build ignore
-
 package contacts
 
 import (
 	"context"
-	"fmt"
+	"net/http"
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
@@ -29,8 +27,8 @@ import (
 // Returns:
 //
 //	(*client.APIResponse, error)
-//
-// TODO: implement
-func (s *service) DeleteContact(ctx context.Context, id string) (*client.APIResponse, error) {
-	return nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#delete-contact")
+func (s *RealService) DeleteContact(ctx context.Context, id string) (*client.APIResponse, error) {
+	path := "contacts/" + id
+	apiResp, err := s.client.Do(ctx, http.MethodDelete, path, nil, nil)
+	return apiResp, err
 }

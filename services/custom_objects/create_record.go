@@ -1,10 +1,10 @@
-//go:build ignore
-
 package custom_objects
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // CreateObjectRecord creates a record for a custom object type.

@@ -1,10 +1,10 @@
-//go:build ignore
-
 package campaigns
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // GetCampaign retrieves a campaign by ID.

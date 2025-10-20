@@ -1,0 +1,5 @@
+This repo now exposes NewRealService(c *client.CoreClient) constructors for most service packages so legacy adapters can delegate to typed services.
+
+Packages with NewRealService added: accounts, campaigns, custom_objects, deals, ecommerce, groups, lists, messages, tags, users, webhooks, tracking.
+
+Contacts already had NewRealService implemented in services/contacts/impl_real.go.

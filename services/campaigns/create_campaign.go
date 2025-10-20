@@ -1,8 +1,11 @@
-//go:build ignore
-
 package campaigns
 
-import "context"
+import (
+	"context"
+	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
+)
 
 // CreateCampaign creates a new campaign resource.
 //
@@ -26,5 +29,4 @@ import "context"
 //	(interface{}, *client.APIResponse, error)
 func (s *service) CreateCampaign(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
 	return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#create-campaign")
-}
 }

@@ -3,32 +3,42 @@
 package main
 
 import (
+	"context"
+	"log"
 	"net/http"
 	"os"
 
-	ac "github.com/chrisjoyce911/active-campaign-sdk-go"
+	legacy "github.com/chrisjoyce911/active-campaign-sdk-go/legacy"
+	"github.com/joho/godotenv"
 )
 
 // If you'd like, you can build your httpClient and avoid passing your token through this package entirely.
 func main() {
+
+	_ = godotenv.Load()
+
 	client := http.DefaultClient
 	rt := WithHeader(client.Transport)
-	rt.Set("Api-Token", "your token")
+	// load env first so token from .env is available
+	_ = godotenv.Load()
+	baseURL := os.Getenv("ACTIVE_URL")
+	token := os.Getenv("ACTIVE_TOKEN")
+
+	if token == "" {
+		rt.Header.Set("Api-Token", "your-token-placeholder")
+	} else {
+		rt.Header.Set("Api-Token", token)
+	}
 	client.Transport = rt
 
-	baseURL := os.Getenv("YOUR_BASE_URL_KEY")
-
-	a, err := ac.NewClient(
-		&ac.ClientOpts{
-			HttpClient: client,
-			BaseUrl:    baseURL,
-		},
-	)
-	if err != nil {
-		panic(err)
+	if baseURL == "" {
+		log.Printf("ACTIVE_URL not set; running example in placeholder mode")
+	} else {
+		log.Printf("ACTIVE_URL set to %s", baseURL)
 	}
 
-	_, _, err = a.Tags.ListAll(100)
+	// Call the legacy adapter SearchContacts as an example placeholder.
+	_, _, err := legacy.SearchContacts(context.Background(), "test@example.com")
 	if err != nil {
 		panic(err)
 	}

@@ -1,27 +1,25 @@
-//go:build ignore
-
 package tags
 
 import (
 	"context"
 	"fmt"
+	"net/http"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // GetTag retrieves a tag by ID.
 //
-// Docs:
-//
-//	Postman: https://www.postman.com/acdevrel/activecampaign-developer-relations/documentation/ju5a59q/activecampaign-api-v3
-//	Reference: https://developers.activecampaign.com/reference#get-tag
-//
-// Parameters:
-//
-//	ctx: context
-//	id: tag id
-//
-// Returns:
-//
-//	(interface{}, *client.APIResponse, error)
-func (s *service) GetTag(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
-	return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#tags")
+// It sends a GET request to /tags/{id} and returns the TagResponse
+// containing the tag data and API metadata. If the service or client
+// is not configured, a not-implemented error is returned to preserve
+// existing zero-value receiver behaviour in tests.
+func (s *service) GetTag(ctx context.Context, id string) (*TagResponse, *client.APIResponse, error) {
+	if s == nil || s.client == nil {
+		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#get-tag")
+	}
+	var out TagResponse
+	path := "tags/" + id
+	apiResp, err := s.client.Do(ctx, http.MethodGet, path, nil, &out)
+	return &out, apiResp, err
 }

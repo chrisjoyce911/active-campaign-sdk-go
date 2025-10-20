@@ -5,6 +5,8 @@ package groups
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // GetGroup retrieves a group by ID.

@@ -1,6 +1,9 @@
 package client
 
-import "net/http"
+import (
+	"net/http"
+	"net/url"
+)
 
 // APIResponse wraps the low-level HTTP response and body for debugging and inspection.
 type APIResponse struct {
@@ -17,3 +20,8 @@ type APIError struct {
 }
 
 func (e *APIError) Error() string { return e.Message }
+
+// BuildContactsSearchPath constructs the contacts search path for an email query.
+func BuildContactsSearchPath(email string) string {
+	return "/api/3/contacts?" + ("email=" + url.QueryEscape(email))
+}

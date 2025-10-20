@@ -5,6 +5,8 @@ package users
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // GetUser retrieves a user by ID.

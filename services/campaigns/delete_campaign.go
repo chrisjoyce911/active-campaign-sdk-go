@@ -1,10 +1,10 @@
-//go:build ignore
-
 package campaigns
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // DeleteCampaign deletes a campaign by ID.

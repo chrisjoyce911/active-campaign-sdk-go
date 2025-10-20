@@ -1,13 +1,32 @@
-//go:build ignore
-
 package deals
 
 import (
 	"context"
-	"fmt"
+	"net/http"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // DeleteDeal deletes a deal.
-func (s *service) DeleteDeal(ctx context.Context, id string) (*client.APIResponse, error) {
-	return nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#deals")
+//
+// What & Why:
+//
+//	Permanently remove a deal from the account.
+//
+// Docs:
+//
+//	Reference: https://developers.activecampaign.com/reference#delete-a-deal
+//
+// Parameters:
+//
+//	ctx: context
+//	id: deal ID
+//
+// Returns:
+//
+//	(*client.APIResponse, error)
+func (s *RealService) DeleteDeal(ctx context.Context, id string) (*client.APIResponse, error) {
+	path := "deals/" + id
+	apiResp, err := s.client.Do(ctx, http.MethodDelete, path, nil, nil)
+	return apiResp, err
 }

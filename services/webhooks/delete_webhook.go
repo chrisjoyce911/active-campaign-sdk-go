@@ -1,10 +1,10 @@
-//go:build ignore
-
 package webhooks
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // DeleteWebhook deletes a webhook by ID.

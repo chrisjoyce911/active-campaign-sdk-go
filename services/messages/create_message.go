@@ -1,10 +1,10 @@
-//go:build ignore
-
 package messages // Ensure package header consistency
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // CreateMessage creates a message resource used by campaigns or automations.

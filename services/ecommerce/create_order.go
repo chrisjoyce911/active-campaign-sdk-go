@@ -1,10 +1,10 @@
-//go:build ignore
-
 package ecommerce
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // CreateOrder creates an e-commerce order via the REST E-Commerce API.

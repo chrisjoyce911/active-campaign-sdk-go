@@ -1,10 +1,10 @@
-//go:build ignore
-
 package lists
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // AddContactToList adds a contact to a list or updates their subscription status.

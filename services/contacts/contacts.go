@@ -18,5 +18,52 @@ import (
 type ContactsService interface {
 	Create(ctx context.Context, req *CreateContactRequest) (*CreateContactResponse, *client.APIResponse, error)
 	SearchByEmail(ctx context.Context, email string) (*ContactSearchResponse, *client.APIResponse, error)
+	GetContact(ctx context.Context, id string) (*CreateContactResponse, *client.APIResponse, error)
+	DeleteContact(ctx context.Context, id string) (*client.APIResponse, error)
 	UpdateListStatus(ctx context.Context, req *UpdateListStatusForContactRequest) (*UpdateContactListStatusResponse, *client.APIResponse, error)
+	// Additional endpoints requested:
+	// Get contact data (field values)
+	GetContactFieldValues(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	// Get contact tags
+	GetContactTags(ctx context.Context, id string) (*ContactTagsResponse, *client.APIResponse, error)
+
+	// Get contact by email (with tags)
+	GetContactByEmailWithTags(ctx context.Context, email string) (interface{}, *client.APIResponse, error)
+
+	// Bounce logs, goals, lists, logs, deals, geo, notes, organization, tracking
+	GetContactBounceLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactGoals(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactLists(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactDealList(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactDeals(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactGeoIPs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactGeoIP(ctx context.Context, id, ip string) (interface{}, *client.APIResponse, error)
+	GetContactNotes(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactOrganization(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactAccountContacts(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactPlusAppend(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactTrackingLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+
+	// Sync, add to list, bulk import and status
+	SyncContact(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	AddContactToList(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	BulkImportContacts(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	GetBulkImportStatus(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	ListBulkImportStatus(ctx context.Context, opts map[string]string) (interface{}, *client.APIResponse, error)
+
+	// Custom fields & field groups
+	CreateCustomField(ctx context.Context, req *FieldPayload) (*FieldResponse, *client.APIResponse, error)
+	ListCustomFields(ctx context.Context) (*ListFieldsResponse, *client.APIResponse, error)
+	UpdateCustomField(ctx context.Context, id string, req *FieldPayload) (*FieldResponse, *client.APIResponse, error)
+	DeleteCustomField(ctx context.Context, id string) (*client.APIResponse, error)
+
+	AddFieldOption(ctx context.Context, req *FieldOptionPayload) (*FieldOptionResponse, *client.APIResponse, error)
+	ListFieldValues(ctx context.Context) (*ListFieldValuesResponse, *client.APIResponse, error)
+	UpdateFieldValueForContact(ctx context.Context, req *FieldValuePayload) (*FieldValueResponse, *client.APIResponse, error)
+
+	AddFieldToGroup(ctx context.Context, req interface{}) (*client.APIResponse, error)
+	GetFieldGroup(ctx context.Context, id string) (*FieldGroupResponse, *client.APIResponse, error)
+	UpdateFieldGroup(ctx context.Context, id string, req interface{}) (*client.APIResponse, error)
+	DeleteFieldGroup(ctx context.Context, id string) (*client.APIResponse, error)
 }

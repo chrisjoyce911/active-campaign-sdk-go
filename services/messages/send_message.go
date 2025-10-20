@@ -1,10 +1,10 @@
-//go:build ignore
-
 package messages
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // SendMessage triggers sending a message (preview or send) depending on API.

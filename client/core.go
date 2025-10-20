@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -17,6 +18,13 @@ type CoreClient struct {
 }
 
 func NewCoreClient(baseURL, token string) (*CoreClient, error) {
+	// Normalize baseURL to include /api/3/ if missing and ensure trailing slash.
+	if baseURL != "" && !strings.Contains(baseURL, "/api/") {
+		baseURL = strings.TrimRight(baseURL, "/") + "/api/3/"
+	} else if baseURL != "" {
+		baseURL = strings.TrimRight(baseURL, "/") + "/"
+	}
+
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err
