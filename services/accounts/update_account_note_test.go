@@ -18,7 +18,7 @@ func TestService_UpdateAccountNote(t *testing.T) {
 		req        interface{}
 		wantStatus int
 	}{
-		{name: "ok", mockResp: &client.APIResponse{StatusCode: 200}, mockBody: []byte(`{"note":{"id":"n1"}}`), noteID: "n1", req: map[string]interface{}{"note":"updated"}, wantStatus: 200},
+		{name: "ok", mockResp: &client.APIResponse{StatusCode: 200}, mockBody: []byte(`{"note":{"id":"n1"}}`), noteID: "n1", req: map[string]interface{}{"note": "updated"}, wantStatus: 200},
 	}
 
 	for _, tt := range tests {

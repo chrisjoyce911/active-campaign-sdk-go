@@ -393,7 +393,10 @@ cc.SetDebug(true, &buf)
 
 If you pass a nil writer the SDK falls back to the standard logger
 (`log.Printf`). Debug output is gated by a boolean flag so it must be
-explicitly enabled; in the default configuration debug logging is off.
+explicitly enabled. In the current SDK behavior, when Debug is enabled the
+client will emit debug output for all outgoing requests by default. If you
+prefer to only log a subset of requests, provide a filter using
+`SetDebugFilter` (see example below).
 
 The debug header looks like:
 
@@ -405,3 +408,14 @@ DEBUG OUTGOING <METHOD> <URL> body:
 If you prefer different formatting or structured logs (JSON), you can pass a
 custom writer that formats the bytes any way you like.
 
+Example: restrict debug to only POSTs to custom objects endpoints.
+
+```go
+cc.SetDebug(true, os.Stdout)
+cc.SetDebugFilter(func(method, path string) bool {
+    if method != "POST" {
+        return false
+    }
+    return strings.Contains(path, "/customObjects/")
+})
+```

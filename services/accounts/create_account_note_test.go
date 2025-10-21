@@ -18,7 +18,7 @@ func TestService_CreateAccountNote(t *testing.T) {
 		req        interface{}
 		wantStatus int
 	}{
-		{name: "ok", mockResp: &client.APIResponse{StatusCode: 201}, mockBody: []byte(`{"note":{"id":"n1"}}`), accountID: "a1", req: map[string]interface{}{"note":"x"}, wantStatus: 201},
+		{name: "ok", mockResp: &client.APIResponse{StatusCode: 201}, mockBody: []byte(`{"note":{"id":"n1"}}`), accountID: "a1", req: map[string]interface{}{"note": "x"}, wantStatus: 201},
 	}
 
 	for _, tt := range tests {
