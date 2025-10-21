@@ -366,3 +366,42 @@ GET Retrieve a Webhook
 GET Retrieve All Webhooks
 GET Retrieve All Webhook Events
 DEL Delete a Webhook
+
+## Debugging outgoing requests
+
+The SDK `CoreClient` includes a simple, opt-in debug facility to dump outgoing
+request bodies for easier troubleshooting. This is helpful when developing
+against the ActiveCampaign API and wanting to inspect the exact JSON the
+client sends.
+
+Usage examples:
+
+- Print debug output to stdout:
+
+```go
+cc.SetDebug(true, os.Stdout)
+```
+
+- Capture debug output in tests (inspect later):
+
+```go
+var buf bytes.Buffer
+cc.SetDebug(true, &buf)
+// perform calls
+// assert strings.Contains(buf.String(), "DEBUG OUTGOING")
+```
+
+If you pass a nil writer the SDK falls back to the standard logger
+(`log.Printf`). Debug output is gated by a boolean flag so it must be
+explicitly enabled; in the default configuration debug logging is off.
+
+The debug header looks like:
+
+```
+DEBUG OUTGOING <METHOD> <URL> body:
+{...json body...}
+```
+
+If you prefer different formatting or structured logs (JSON), you can pass a
+custom writer that formats the bytes any way you like.
+
