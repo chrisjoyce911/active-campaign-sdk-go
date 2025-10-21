@@ -35,9 +35,10 @@ func TestUpdateObjectRecord(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.NotNil(t, apiResp)
-			if tc.name == "ok" {
+			switch tc.name {
+			case "ok":
 				assert.Equal(t, "r1", out.Record.ID)
-			} else if tc.name == "ok-empty" {
+			case "ok-empty":
 				assert.Equal(t, "", out.Record.ID)
 			}
 		})

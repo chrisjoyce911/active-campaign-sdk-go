@@ -37,9 +37,10 @@ func TestCreateObjectType(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tc.wantStatus, apiResp.StatusCode)
 			if assert.NotNil(t, out) {
-				if tc.name == "ok" {
+				switch tc.name {
+				case "ok":
 					assert.Equal(t, "ot1", out.ID)
-				} else if tc.name == "ok-empty" {
+				case "ok-empty":
 					assert.Equal(t, "", out.ID)
 				}
 			}

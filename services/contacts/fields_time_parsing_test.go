@@ -1,6 +1,7 @@
 package contacts
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 
@@ -15,7 +16,7 @@ func TestFieldPayload_TimeParsing(t *testing.T) {
 	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: body}
 	svc := NewRealServiceFromDoer(md)
 
-	out, apiResp, err := svc.ListCustomFields(nil)
+	out, apiResp, err := svc.ListCustomFields(context.TODO())
 	assert.NoError(t, err)
 	assert.Equal(t, 200, apiResp.StatusCode)
 	fields := out.FieldsOrEmpty()

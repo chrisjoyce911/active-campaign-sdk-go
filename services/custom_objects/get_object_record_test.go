@@ -34,10 +34,11 @@ func TestGetObjectRecord(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.NotNil(t, apiResp)
-			if tc.name == "ok" {
+			switch tc.name {
+			case "ok":
 				assert.Equal(t, "r1", out.ID)
 				assert.Equal(t, "x", out.Fields["name"])
-			} else if tc.name == "ok-empty" {
+			case "ok-empty":
 				assert.Equal(t, "", out.ID)
 				assert.Nil(t, out.Fields)
 			}
