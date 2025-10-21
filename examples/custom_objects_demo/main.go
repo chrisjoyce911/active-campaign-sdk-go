@@ -86,6 +86,10 @@ func main() {
 	// track IDs for deferred cleanup when safeMode == false
 	var createdSchemaID string
 	var createdRecordIDs []string
+	// track which created IDs were already deleted during the main run so
+	// deferred cleanup won't attempt to delete them again (avoids 404s).
+	createdRecordDeleted := make(map[string]bool)
+	var createdSchemaDeleted bool
 	if !safeMode {
 		// Create a minimal schema with one text field
 		schemaReq := &custom_objects.CreateObjectTypeRequest{
@@ -116,6 +120,10 @@ func main() {
 		defer func() {
 			if len(createdRecordIDs) > 0 {
 				for _, rid := range createdRecordIDs {
+					if createdRecordDeleted[rid] {
+						// already deleted during main run
+						continue
+					}
 					apiResp, err := svc.DeleteObjectRecord(context.Background(), createdSchemaID, rid)
 					if apiResp != nil {
 						log.Printf("Deferred DeleteObjectRecord HTTP status: %d", apiResp.StatusCode)
@@ -130,7 +138,7 @@ func main() {
 					}
 				}
 			}
-			if createdSchemaID != "" {
+			if createdSchemaID != "" && !createdSchemaDeleted {
 				apiResp, err := svc.DeleteObjectType(context.Background(), createdSchemaID)
 				if apiResp != nil {
 					log.Printf("Deferred DeleteObjectType HTTP status: %d", apiResp.StatusCode)
@@ -145,7 +153,6 @@ func main() {
 				}
 			}
 		}()
-		}
 	} else {
 		log.Printf("Skipping CreateObjectType because SAFE mode is enabled")
 	}
@@ -203,7 +210,7 @@ func main() {
 		}
 
 		// 6) Get each created record by id
-		for _, recordID := range recordIDs {
+		for _, recordID := range createdRecordIDs {
 			gotRec, apiResp, err := svc.GetObjectRecord(context.Background(), createdSchema.ID, recordID)
 			if apiResp != nil {
 				log.Printf("GetObjectRecord HTTP status: %d", apiResp.StatusCode)
@@ -245,6 +252,8 @@ func main() {
 				log.Printf("DeleteObjectRecord error: %v", err)
 			} else {
 				log.Printf("Deleted record id=%s", recordID)
+				// mark as deleted so deferred cleanup will skip it
+				createdRecordDeleted[recordID] = true
 			}
 		}
 
@@ -260,6 +269,8 @@ func main() {
 			log.Printf("DeleteObjectType error: %v", err)
 		} else {
 			log.Printf("Deleted object type id=%s", createdSchema.ID)
+			// mark schema as deleted to avoid deferred second-delete
+			createdSchemaDeleted = true
 		}
 	}
 
