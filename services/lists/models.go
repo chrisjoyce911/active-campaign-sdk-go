@@ -73,6 +73,11 @@ func (i *IntOrString) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// StringToUser is a small helper to convert a plain string to StringOrInt.
+func StringToUser(s string) StringOrInt {
+	return StringOrInt(s)
+}
+
 // List represents the fields of an ActiveCampaign list returned by the API.
 type List struct {
 	ID                string `json:"id,omitempty"`

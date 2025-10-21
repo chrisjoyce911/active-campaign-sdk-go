@@ -60,7 +60,7 @@ func main() {
 		StringID:  fmt.Sprintf("example-list-%d", time.Now().Unix()),
 		Channel:   "email",
 		SenderURL: "https://example.com",
-		User:      contact,
+		User:      lists.StringToUser(contact),
 	}}
 
 	out, apiResp, err := listsSvc.CreateList(context.Background(), req)
