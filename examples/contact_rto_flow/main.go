@@ -62,6 +62,50 @@ func main() {
 
 	ctx := context.Background()
 
+	// small helper: detect a field id by title or perstag (used only for diagnostics)
+	detectFieldID := func(ctx context.Context, svc *contacts.RealService, wantTitle string, wantPerstag string) (string, error) {
+		resp, _, err := svc.ListCustomFieldsWithOpts(ctx, map[string]string{"limit": "100"})
+		if err != nil || resp == nil {
+			return "", err
+		}
+		wantTitleLower := strings.ToLower(strings.TrimSpace(wantTitle))
+		wantPerstagLower := strings.ToLower(strings.TrimSpace(wantPerstag))
+		for _, f := range resp.FieldsOrEmpty() {
+			if wantTitleLower != "" && strings.ToLower(strings.TrimSpace(f.Title)) == wantTitleLower {
+				return f.ID, nil
+			}
+			if wantPerstagLower != "" && strings.ToLower(strings.TrimSpace(f.Perstag)) == wantPerstagLower {
+				return f.ID, nil
+			}
+		}
+		return "", nil
+	}
+
+	// updateCustomField centralizes the example-level dry-run/logging and calls the SDK helper
+	updateCustomField := func(ctx context.Context, svc *contacts.RealService, contactID, fieldIdentifier, value string, apply bool, hintTitle, hintPerstag string) {
+		if fieldIdentifier == "" {
+			return
+		}
+		if !apply {
+			fmt.Printf("dry-run: would update custom field %s -> %s for contact %s\n", fieldIdentifier, value, contactID)
+			return
+		}
+		out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(ctx, contactID, fieldIdentifier, value)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "UpdateOrCreateFieldValueForContact error: %v\n", err)
+			if apiResp != nil {
+				fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
+			}
+			// helpful diagnostic: try to find candidate field ids
+			if candidate, derr := detectFieldID(ctx, svc, hintTitle, hintPerstag); derr == nil && candidate != "" {
+				fmt.Fprintf(os.Stderr, "detected candidate field id=%s (by title/perstag)\n", candidate)
+			}
+			return
+		}
+		_ = out
+		fmt.Println("updated custom field via UpdateOrCreateFieldValueForContact")
+	}
+
 	// (Field ID detection helper removed; example uses SDK-level UpdateOrCreateFieldValueForContact)
 
 	// 1) Search by email
@@ -129,36 +173,10 @@ func main() {
 	// 3) Update custom fields via UpdateFieldValueForContact
 	// Use ACTIVE_CONTACT_CF_* env vars mapping to field ids
 	if cfCompany != "" {
-		if !*apply {
-			fmt.Printf("dry-run: would update custom field %s -> %s for contact %s\n", cfCompany, company, contactID)
-		} else {
-			out, apiResp, err := contactsSvc.UpdateOrCreateFieldValueForContact(ctx, contactID, cfCompany, company)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "UpdateOrCreateFieldValueForContact error: %v\n", err)
-				if apiResp != nil {
-					fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
-				}
-			} else {
-				fmt.Println("updated company custom field via UpdateOrCreateFieldValueForContact")
-				_ = out
-			}
-		}
+		updateCustomField(ctx, contactsSvc, contactID, cfCompany, company, *apply, "Company Name", "COMPANY_NAME")
 	}
 	if cfRTO != "" {
-		if !*apply {
-			fmt.Printf("dry-run: would update custom field %s -> %s for contact %s\n", cfRTO, rto, contactID)
-		} else {
-			out, apiResp, err := contactsSvc.UpdateOrCreateFieldValueForContact(ctx, contactID, cfRTO, rto)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "UpdateOrCreateFieldValueForContact error: %v\n", err)
-				if apiResp != nil {
-					fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
-				}
-			} else {
-				fmt.Println("updated RTO custom field via UpdateOrCreateFieldValueForContact")
-				_ = out
-			}
-		}
+		updateCustomField(ctx, contactsSvc, contactID, cfRTO, rto, *apply, "RTO ID", "RTO_ID")
 	}
 
 	// 4) Add contact to list
