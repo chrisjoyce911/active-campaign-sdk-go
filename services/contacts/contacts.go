@@ -26,6 +26,16 @@ type ContactsService interface {
 	// Additional endpoints requested:
 	// Get contact data (field values)
 	GetContactFieldValues(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	// Typed helper that returns contact field values as a typed ListFieldValuesResponse
+	GetContactFieldValuesTyped(ctx context.Context, id string) (*ListFieldValuesResponse, *client.APIResponse, error)
+	// UpdateOrCreateFieldValueForContact will ensure a contact has the given custom
+	// field value set. It detects the canonical custom field id (from the
+	// provided identifier which may be an id, perstag, or title), checks whether a
+	// FieldValue record already exists for the contact and field, and then either
+	// updates the existing FieldValue (PUT /fieldValues/{id}) or creates one
+	// (POST /fieldValues). Returns the FieldValueResponse or a low-level API
+	// response and error.
+	UpdateOrCreateFieldValueForContact(ctx context.Context, contactID, fieldIdentifier, value string) (*FieldValueResponse, *client.APIResponse, error)
 	// Get contact tags
 	GetContactTags(ctx context.Context, id string) (*ContactTagsResponse, *client.APIResponse, error)
 
