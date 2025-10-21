@@ -11,47 +11,51 @@ type CreateContactRequest struct {
 // Contact represents the contact object.
 // TODO: expand fields and tags, fieldValues, links, etc.
 type Contact struct {
-	ID                  string            `json:"id,omitempty"`
-	Email               string            `json:"email,omitempty"`
-	Phone               string            `json:"phone,omitempty"`
-	FirstName           string            `json:"firstName,omitempty"`
-	LastName            string            `json:"lastName,omitempty"`
-	OrgID               string            `json:"orgid,omitempty"`
-	OrgName             string            `json:"orgname,omitempty"`
-	SegmentIOID         string            `json:"segmentio_id,omitempty"`
-	BouncedHard         string            `json:"bounced_hard,omitempty"`
-	BouncedSoft         string            `json:"bounced_soft,omitempty"`
-	BouncedDate         *string           `json:"bounced_date,omitempty"`
-	IP                  string            `json:"ip,omitempty"`
-	UA                  string            `json:"ua,omitempty"`
-	Hash                string            `json:"hash,omitempty"`
-	SocialDataLastCheck *string           `json:"socialdata_lastcheck,omitempty"`
-	EmailLocal          string            `json:"email_local,omitempty"`
-	EmailDomain         string            `json:"email_domain,omitempty"`
-	SentCnt             string            `json:"sentcnt,omitempty"`
-	RatingTstamp        *string           `json:"rating_tstamp,omitempty"`
-	Gravatar            string            `json:"gravatar,omitempty"`
-	Deleted             string            `json:"deleted,omitempty"`
-	Anonymized          string            `json:"anonymized,omitempty"`
-	ADate               string            `json:"adate,omitempty"`
-	UDate               string            `json:"udate,omitempty"`
-	EDate               string            `json:"edate,omitempty"`
-	DeletedAt           *string           `json:"deleted_at,omitempty"`
-	CreatedUTCTimestamp string            `json:"created_utc_timestamp,omitempty"`
-	UpdatedUTCTimestamp string            `json:"updated_utc_timestamp,omitempty"`
-	CreatedTimestamp    string            `json:"created_timestamp,omitempty"`
-	UpdatedTimestamp    string            `json:"updated_timestamp,omitempty"`
-	CreatedBy           string            `json:"created_by,omitempty"`
-	UpdatedBy           string            `json:"updated_by,omitempty"`
-	MPPTracking         string            `json:"mpp_tracking,omitempty"`
-	LastClickDate       *string           `json:"last_click_date,omitempty"`
-	LastOpenDate        *string           `json:"last_open_date,omitempty"`
-	LastMPPOpenDate     string            `json:"last_mpp_open_date,omitempty"`
-	BestSendHour        string            `json:"best_send_hour,omitempty"`
-	ScoreValues         []string          `json:"scoreValues,omitempty"`
-	AccountContacts     []interface{}     `json:"accountContacts,omitempty"`
-	Links               map[string]string `json:"links,omitempty"`
-	Organization        interface{}       `json:"organization,omitempty"`
+	ID                  string        `json:"id,omitempty"`
+	Email               string        `json:"email,omitempty"`
+	Phone               string        `json:"phone,omitempty"`
+	FirstName           string        `json:"firstName,omitempty"`
+	LastName            string        `json:"lastName,omitempty"`
+	OrgID               string        `json:"orgid,omitempty"`
+	OrgName             string        `json:"orgname,omitempty"`
+	SegmentIOID         string        `json:"segmentio_id,omitempty"`
+	BouncedHard         string        `json:"bounced_hard,omitempty"`
+	BouncedSoft         string        `json:"bounced_soft,omitempty"`
+	BouncedDate         *string       `json:"bounced_date,omitempty"`
+	IP                  string        `json:"ip,omitempty"`
+	UA                  string        `json:"ua,omitempty"`
+	Hash                string        `json:"hash,omitempty"`
+	SocialDataLastCheck *string       `json:"socialdata_lastcheck,omitempty"`
+	EmailLocal          string        `json:"email_local,omitempty"`
+	EmailDomain         string        `json:"email_domain,omitempty"`
+	SentCnt             string        `json:"sentcnt,omitempty"`
+	RatingTstamp        *string       `json:"rating_tstamp,omitempty"`
+	Gravatar            string        `json:"gravatar,omitempty"`
+	Deleted             string        `json:"deleted,omitempty"`
+	Anonymized          string        `json:"anonymized,omitempty"`
+	ADate               string        `json:"adate,omitempty"`
+	UDate               string        `json:"udate,omitempty"`
+	EDate               string        `json:"edate,omitempty"`
+	DeletedAt           *string       `json:"deleted_at,omitempty"`
+	CreatedUTCTimestamp string        `json:"created_utc_timestamp,omitempty"`
+	UpdatedUTCTimestamp string        `json:"updated_utc_timestamp,omitempty"`
+	CreatedTimestamp    string        `json:"created_timestamp,omitempty"`
+	UpdatedTimestamp    string        `json:"updated_timestamp,omitempty"`
+	CreatedBy           string        `json:"created_by,omitempty"`
+	UpdatedBy           string        `json:"updated_by,omitempty"`
+	MPPTracking         string        `json:"mpp_tracking,omitempty"`
+	LastClickDate       *string       `json:"last_click_date,omitempty"`
+	LastOpenDate        *string       `json:"last_open_date,omitempty"`
+	LastMPPOpenDate     string        `json:"last_mpp_open_date,omitempty"`
+	BestSendHour        string        `json:"best_send_hour,omitempty"`
+	ScoreValues         []string      `json:"scoreValues,omitempty"`
+	AccountContacts     []interface{} `json:"accountContacts,omitempty"`
+	// FieldValues allows creating/updating custom field values inline when
+	// creating or updating a contact. Each FieldValue refers to a previously
+	// created custom field by id.
+	FieldValues  *[]FieldValue     `json:"fieldValues,omitempty"`
+	Links        map[string]string `json:"links,omitempty"`
+	Organization interface{}       `json:"organization,omitempty"`
 }
 
 // CreateContactResponse is returned when a contact is created.

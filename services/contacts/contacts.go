@@ -20,6 +20,8 @@ type ContactsService interface {
 	SearchByEmail(ctx context.Context, email string) (*ContactSearchResponse, *client.APIResponse, error)
 	GetContact(ctx context.Context, id string) (*CreateContactResponse, *client.APIResponse, error)
 	DeleteContact(ctx context.Context, id string) (*client.APIResponse, error)
+	// Update an existing contact by id (PUT /contacts/{id})
+	UpdateContact(ctx context.Context, id string, req *CreateContactRequest) (*CreateContactResponse, *client.APIResponse, error)
 	UpdateListStatus(ctx context.Context, req *UpdateListStatusForContactRequest) (*UpdateContactListStatusResponse, *client.APIResponse, error)
 	// Additional endpoints requested:
 	// Get contact data (field values)
