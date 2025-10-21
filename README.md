@@ -75,6 +75,26 @@ A few examples:
 
 If you are new to pull requests, checkout [Collaborating on projects using issues and pull requests / Creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
+## Code coverage
+
+This repository includes CI that runs the test suite and produces a coverage
+report. The GitHub Actions workflow (`.github/workflows/ci.yml`) will run
+`go test ./... -coverprofile=coverage.out` and upload `coverage.out` as a
+workflow artifact. If you configure the secret `CODECOV_TOKEN` the job will
+also upload coverage to Codecov.
+
+Run coverage locally:
+
+```bash
+# run tests with coverage and open an HTML report
+go test ./... -coverprofile=coverage.out
+go tool cover -html=coverage.out -o coverage.html
+open coverage.html
+```
+
+If you'd like Codecov badges added to the README, set up the repository on
+Codecov and provide `CODECOV_TOKEN` as a repository secret (private repos).
+
 ## License
 
 This project is released under the terms of the [MIT license](http://en.wikipedia.org/wiki/MIT_License).
