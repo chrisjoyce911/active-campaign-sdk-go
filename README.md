@@ -120,7 +120,7 @@ _Status snapshot: 20 Oct 2025_
 - Users: ✅ Implemented (core) — `services/users` has implementations and tests for user CRUD flows
 - Webhooks: ✅ Implemented (core) — `services/webhooks` has per-endpoint files and tests
 - Groups: ✅ Implemented (core) — `services/groups` contains implementations and tests
-- Lists: ✅ Implemented (core) — `services/lists` has implementations for list endpoints
+- Lists: ✅ Implemented (core) — see `services/lists/README.md` for usage and the `examples/create_list` demo
 - Messages: ✅ Implemented (core) — `services/messages` contains implementations
 - Custom Objects: ⚠️ Implemented (partial) — `services/custom_objects` contains schema + record helpers; some areas remain incomplete
 - Tracking: ✅ Implemented (core) — `services/tracking` contains site/event tracking helpers and tests
