@@ -16,8 +16,6 @@ import (
 
 func env(k string) string { return strings.TrimSpace(os.Getenv(k)) }
 
-func mustIntEnv(k string) string { return env(k) }
-
 func main() {
 	_ = godotenv.Load()
 
