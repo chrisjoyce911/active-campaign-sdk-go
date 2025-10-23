@@ -27,6 +27,8 @@ type HTTPDoer struct {
 	// Recorded
 	LastRequest     *http.Request
 	LastRequestBody []byte
+	// Optional transport for testing or custom clients. If nil, a fakeRoundTripper is used.
+	Transport http.RoundTripper
 }
 
 // fakeRoundTripper returns the canned response and records the request.
@@ -111,8 +113,14 @@ func (h *HTTPDoer) Do(ctx context.Context, method, path string, v interface{}, o
 		req.Header.Set("Api-Token", h.Token)
 	}
 
-	// set up fake client with our roundtripper
-	fake := &http.Client{Transport: &fakeRoundTripper{parent: h}}
+	// set up client with provided transport or our fake roundtripper
+	var tr http.RoundTripper
+	if h.Transport != nil {
+		tr = h.Transport
+	} else {
+		tr = &fakeRoundTripper{parent: h}
+	}
+	fake := &http.Client{Transport: tr}
 
 	resp, err := fake.Do(req)
 	if err != nil {
