@@ -267,3 +267,39 @@ func TestGenerator_Generate_with_existing_mapping_and_small_limit(t *testing.T) 
 	err = g.Generate()
 	assert.NoError(t, err)
 }
+
+func TestGenerator_Generate_triggers_field_sorting(t *testing.T) {
+	// return two field entries so sort comparator executes
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/api/3/tags" || r.URL.Path == "/tags":
+			w.Write([]byte(`{"tags":[{"id":"1","tag":"A"}]}`))
+		case r.URL.Path == "/api/3/fields" || r.URL.Path == "/fields":
+			w.Write([]byte(`{"fields":[{"id":"10","title":"B"},{"id":"11","title":"A"}]}`))
+		case r.URL.Path == "/api/3/lists" || r.URL.Path == "/lists":
+			w.Write([]byte(`{"lists":[{"id":"100","name":"L1"}]}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer srv.Close()
+
+	outF, err := os.CreateTemp("", "gen-*.go")
+	assert.NoError(t, err)
+	outPath := outF.Name()
+	outF.Close()
+	defer os.Remove(outPath)
+
+	mapF, err := os.CreateTemp("", "map-*.json")
+	assert.NoError(t, err)
+	mapPath := mapF.Name()
+	mapF.Close()
+	defer os.Remove(mapPath)
+
+	g := NewGenerator(srv.URL, "token")
+	g.SetOutputPath(outPath)
+	g.SetMapPath(mapPath)
+
+	err = g.Generate()
+	assert.NoError(t, err)
+}

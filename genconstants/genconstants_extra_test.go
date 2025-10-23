@@ -191,6 +191,87 @@ func TestGenerator_Generate_newCoreClient_error(t *testing.T) {
 	assert.Contains(t, err.Error(), "new core client")
 }
 
+func TestGenerator_Generate_missing_credentials(t *testing.T) {
+	g := NewGenerator("", "")
+	g.SetOutputPath("/dev/null/x.go")
+	g.SetMapPath("/dev/null/x.json")
+	err := g.Generate()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "base url and token are required")
+}
+
+func TestGenerator_Generate_fetch_fields_error(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/api/3/tags" || r.URL.Path == "/tags":
+			w.Write([]byte(`{"tags":[{"id":"1","tag":"Foo"}]}`))
+		case r.URL.Path == "/api/3/fields" || r.URL.Path == "/fields":
+			http.Error(w, `{"error":"boom"}`, 500)
+		case r.URL.Path == "/api/3/lists" || r.URL.Path == "/lists":
+			w.Write([]byte(`{"lists":[{"id":"100","name":"Baz"}]}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer srv.Close()
+
+	outF, err := os.CreateTemp("", "gen-*.go")
+	assert.NoError(t, err)
+	outPath := outF.Name()
+	outF.Close()
+	defer os.Remove(outPath)
+
+	mapF, err := os.CreateTemp("", "map-*.json")
+	assert.NoError(t, err)
+	mapPath := mapF.Name()
+	mapF.Close()
+	defer os.Remove(mapPath)
+
+	g := NewGenerator(srv.URL, "token")
+	g.SetOutputPath(outPath)
+	g.SetMapPath(mapPath)
+
+	err = g.Generate()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "fetch fields")
+}
+
+func TestGenerator_Generate_fetch_lists_error(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/api/3/tags" || r.URL.Path == "/tags":
+			w.Write([]byte(`{"tags":[{"id":"1","tag":"Foo"}]}`))
+		case r.URL.Path == "/api/3/fields" || r.URL.Path == "/fields":
+			w.Write([]byte(`{"fields":[{"id":"10","title":"Bar"}]}`))
+		case r.URL.Path == "/api/3/lists" || r.URL.Path == "/lists":
+			http.Error(w, `{"error":"boom"}`, 500)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer srv.Close()
+
+	outF, err := os.CreateTemp("", "gen-*.go")
+	assert.NoError(t, err)
+	outPath := outF.Name()
+	outF.Close()
+	defer os.Remove(outPath)
+
+	mapF, err := os.CreateTemp("", "map-*.json")
+	assert.NoError(t, err)
+	mapPath := mapF.Name()
+	mapF.Close()
+	defer os.Remove(mapPath)
+
+	g := NewGenerator(srv.URL, "token")
+	g.SetOutputPath(outPath)
+	g.SetMapPath(mapPath)
+
+	err = g.Generate()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "fetch lists")
+}
+
 func TestGenerator_Generate_write_error_dir(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"tags":[],"fields":[],"lists":[]}`))
