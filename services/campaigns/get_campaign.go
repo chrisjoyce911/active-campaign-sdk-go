@@ -2,21 +2,27 @@ package campaigns
 
 import (
 	"context"
-	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
-// GetCampaign retrieves a campaign by ID.
-//
-// Docs: see Postman and reference links in createCampaign.go
-//
-// Parameters:
-//
-//	ctx: context
-//	id: campaign ID
-//
-// Returns: (interface{}, *client.APIResponse, error)
-func (s *service) GetCampaign(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
-	return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#get-campaign")
+// GetCampaign retrieves a campaign by ID from /campaigns/{id} and decodes
+// the JSON into a Campaign value. On success the returned *Campaign is
+// populated from the API response and the raw *client.APIResponse is
+// also returned for callers that need access to headers/status/body.
+func (s *service) GetCampaign(ctx context.Context, id string) (*Campaign, *client.APIResponse, error) {
+	// Ensure the id is safely encoded for inclusion in a path segment.
+	path := "campaigns/" + url.PathEscape(id)
+
+	// The API returns a wrapper object: { "campaign": { ... } }
+	var wrapper struct {
+		Campaign Campaign `json:"campaign"`
+	}
+	apiResp, err := s.client.Do(ctx, http.MethodGet, path, nil, &wrapper)
+	if err != nil {
+		return nil, apiResp, err
+	}
+	return &wrapper.Campaign, apiResp, nil
 }

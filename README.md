@@ -117,6 +117,7 @@ _Status snapshot: 20 Oct 2025_
 - Contact Automations: ✅ Implemented — `services/contactautomation` contains typed endpoints and tests (get counts, get automation entry, add/remove contact, list)
 - Deals: ✅ Implemented (core) — `services/deals` has RealService implementations and tests for main deal endpoints
 - Campaigns: ✅ Implemented (core) — `services/campaigns` includes implementations and tests for listing, get, create, send, and update flows
+  - See details: `services/campaigns/README.md`
 - Users: ✅ Implemented (core) — `services/users` has implementations and tests for user CRUD flows
 - Webhooks: ✅ Implemented (core) — `services/webhooks` has per-endpoint files and tests
 - Groups: ✅ Implemented (core) — `services/groups` contains implementations and tests
