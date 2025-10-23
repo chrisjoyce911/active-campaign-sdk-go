@@ -16,7 +16,7 @@ import (
 // existing zero-value receiver behaviour in tests.
 func (s *service) GetTag(ctx context.Context, id string) (*TagResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
-		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#get-tag")
+		return nil, nil, fmt.Errorf("service not configured: GetTag")
 	}
 	var out TagResponse
 	path := "tags/" + id

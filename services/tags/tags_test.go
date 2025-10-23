@@ -23,7 +23,7 @@ func TestTags_NotImplementedPlaceholders(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				err := tc.fn()
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), "not implemented")
+				assert.Contains(t, err.Error(), "service not configured")
 			})
 		}
 	})

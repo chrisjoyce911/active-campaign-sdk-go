@@ -14,11 +14,13 @@ import (
 // It sends a GET request to /tags and accepts an optional map of
 // query parameters (e.g., pagination or filtering keys). The response
 // is unmarshalled into ListTagsResponse. When the service is not
-// configured a not-implemented error is returned (useful during
-// iterative migration and tests relying on zero-value receivers).
+// configured this method returns an error indicating the service is
+// not configured.
+//
+// API reference: https://developers.activecampaign.com/reference#list-tags
 func (s *service) ListTags(ctx context.Context, opts map[string]string) (*ListTagsResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
-		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#list-tags")
+		return nil, nil, fmt.Errorf("service not configured: ListTags")
 	}
 	var out ListTagsResponse
 	base := "tags"

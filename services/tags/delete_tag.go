@@ -11,12 +11,14 @@ import (
 // DeleteTag deletes a tag by ID.
 //
 // It sends a DELETE request to /tags/{id}. The APIResponse contains
-// the HTTP status and any error information. When called against a
-// zero-value receiver a not-implemented error is returned to preserve
-// previous behaviour during migration.
+// the HTTP status and any error information. When the service is not
+// configured this method returns an error indicating the service is
+// not configured.
+//
+// API reference: https://developers.activecampaign.com/reference#delete-tag
 func (s *service) DeleteTag(ctx context.Context, id string) (*client.APIResponse, error) {
 	if s == nil || s.client == nil {
-		return nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#delete-tag")
+		return nil, fmt.Errorf("service not configured: DeleteTag")
 	}
 	path := "tags/" + id
 	apiResp, err := s.client.Do(ctx, http.MethodDelete, path, nil, nil)

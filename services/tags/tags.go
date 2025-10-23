@@ -6,33 +6,8 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
-// TagPayload represents the tag resource body used in requests and responses.
-type TagPayload struct {
-	ID  string `json:"id,omitempty"`
-	Tag string `json:"tag,omitempty"`
-}
-
-// CreateOrUpdateTagRequest is the request envelope for creating or updating a tag.
-type CreateOrUpdateTagRequest struct {
-	Tag TagPayload `json:"tag"`
-}
-
-// TagResponse is the envelope returned for single-tag endpoints.
-type TagResponse struct {
-	Tag TagPayload `json:"tag"`
-}
-
-// ListTagsResponse is the envelope returned for list endpoints.
-type ListTagsResponse struct {
-	Tags *[]TagPayload `json:"tags"`
-}
-
-// Accessor to avoid nil checks for tags list
-func (l *ListTagsResponse) TagsOrEmpty() []TagPayload {
-	if l == nil || l.Tags == nil {
-		return []TagPayload{}
-	}
-	return *l.Tags
+type service struct {
+	client client.Doer
 }
 
 type TagsService interface {
@@ -44,6 +19,10 @@ type TagsService interface {
 	AddTagToContact(ctx context.Context, contactID string, req *CreateOrUpdateTagRequest) (*TagResponse, *client.APIResponse, error)
 }
 
-type service struct {
-	client client.Doer
+// Accessor to avoid nil checks for tags list
+func (l *ListTagsResponse) TagsOrEmpty() []TagPayload {
+	if l == nil || l.Tags == nil {
+		return []TagPayload{}
+	}
+	return *l.Tags
 }
