@@ -54,22 +54,17 @@ func (i *IntOrString) UnmarshalJSON(b []byte) error {
 		*i = IntOrString(v)
 		return nil
 	}
-	// number
-	var v int
-	if err := json.Unmarshal(b, &v); err != nil {
-		// try via json.Number to preserve large ints
-		var num json.Number
-		if err2 := json.Unmarshal(b, &num); err2 != nil {
-			return err
-		}
-		iv, err3 := strconv.Atoi(num.String())
-		if err3 != nil {
-			return err3
-		}
-		*i = IntOrString(iv)
-		return nil
+	// For numbers, unmarshal into json.Number first to canonicalize and
+	// avoid platform-dependent behavior when decoding directly into int.
+	var num json.Number
+	if err := json.Unmarshal(b, &num); err != nil {
+		return err
 	}
-	*i = IntOrString(v)
+	iv, err := strconv.Atoi(num.String())
+	if err != nil {
+		return err
+	}
+	*i = IntOrString(iv)
 	return nil
 }
 

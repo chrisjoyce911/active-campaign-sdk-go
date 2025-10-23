@@ -3,6 +3,7 @@ package contacts
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 
@@ -46,6 +47,23 @@ func (t *testDoer) Do(ctx context.Context, method, path string, v interface{}, o
 	// Default: delegate to the simple MockDoer behaviour for other endpoints
 	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{}`)}
 	return md.Do(ctx, method, path, v, out)
+}
+
+// doerWrapper implements a doer that returns a canned fieldsBody for
+// GET /fields requests, otherwise delegates to the embedded testDoer.
+type doerWrapper struct {
+	*testDoer
+	fieldsBody []byte
+}
+
+func (d *doerWrapper) Do(ctx context.Context, method, path string, v interface{}, out interface{}) (*client.APIResponse, error) {
+	if method == "GET" && strings.Contains(path, "fields") {
+		if d.fieldsBody != nil && out != nil {
+			_ = json.Unmarshal(d.fieldsBody, out)
+		}
+		return &client.APIResponse{StatusCode: 200, Body: d.fieldsBody}, nil
+	}
+	return d.testDoer.Do(ctx, method, path, v, out)
 }
 
 func TestRealService_UpdateOrCreateFieldValueForContact_UpdateExisting(t *testing.T) {
@@ -112,5 +130,129 @@ func TestIsAllDigits(t *testing.T) {
 		if got := isAllDigits(s); got != want {
 			t.Fatalf("isAllDigits(%q) = %v, want %v", s, got, want)
 		}
+	}
+}
+
+func TestRealService_UpdateOrCreateFieldValueForContact_ResolveByPerstag_UpdateExisting(t *testing.T) {
+	// fields list contains a matching perstag -> resolves to ID 99
+	lf := &ListFieldsResponse{Fields: &[]FieldPayload{{ID: "99", Perstag: "mytag", Title: "My Title"}}}
+	fieldsBody, _ := json.Marshal(lf)
+
+	// GET contact fieldValues returns existing fv with Field == 99
+	fvList := &ListFieldValuesResponse{FieldValues: &[]FieldValuePayload{{ID: "fv99", Field: "99", Value: "old"}}}
+	fvBody, _ := json.Marshal(fvList)
+
+	putBody := []byte(`{"fieldValue":{"id":"fv99","value":"new"}}`)
+
+	td := &testDoer{getBody: fvBody, putBody: putBody}
+	dw := &doerWrapper{testDoer: td, fieldsBody: fieldsBody}
+	svc := NewRealServiceFromDoer(dw)
+
+	out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(context.Background(), "c1", "mytag", "new")
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if apiResp == nil || apiResp.StatusCode != 200 {
+		t.Fatalf("expected 200, got %+v", apiResp)
+	}
+	if out == nil || out.FieldValue.ID != "fv99" {
+		t.Fatalf("unexpected output: %+v", out)
+	}
+}
+
+func TestRealService_UpdateOrCreateFieldValueForContact_MatchByFieldIdentifier_UpdateExisting(t *testing.T) {
+	// Simulate ListCustomFields returning empty (no resolution)
+	fieldsBody := []byte(`{}`)
+
+	// GET contact fieldValues returns existing fv with Field == the provided identifier
+	fvList := &ListFieldValuesResponse{FieldValues: &[]FieldValuePayload{{ID: "fvp", Field: "perstagXYZ", Value: "old"}}}
+	fvBody, _ := json.Marshal(fvList)
+
+	putBody := []byte(`{"fieldValue":{"id":"fvp","value":"new"}}`)
+
+	td := &testDoer{getBody: fvBody, putBody: putBody}
+	dw := &doerWrapper{testDoer: td, fieldsBody: fieldsBody}
+	svc := NewRealServiceFromDoer(dw)
+
+	out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(context.Background(), "c1", "perstagXYZ", "new")
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if apiResp == nil || apiResp.StatusCode != 200 {
+		t.Fatalf("expected 200, got %+v", apiResp)
+	}
+	if out == nil || out.FieldValue.ID != "fvp" {
+		t.Fatalf("unexpected output: %+v", out)
+	}
+}
+
+func TestRealService_UpdateOrCreateFieldValueForContact_EmptyContactID(t *testing.T) {
+	svc := NewRealServiceFromDoer(&testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{}`)})
+	out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(context.Background(), "", "13", "new")
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if apiResp == nil || apiResp.StatusCode != 400 {
+		t.Fatalf("expected 400 for empty contactID, got %+v", apiResp)
+	}
+	if out != nil {
+		t.Fatalf("expected nil out for empty contactID")
+	}
+}
+
+func TestRealService_UpdateOrCreateFieldValueForContact_EmptyFieldIdentifier_MatchEmptyField(t *testing.T) {
+	// GET contact fieldValues returns existing fv with Field == "" and id fvE
+	fvList := &ListFieldValuesResponse{FieldValues: &[]FieldValuePayload{{ID: "fvE", Field: "", Value: "old"}}}
+	fvBody, _ := json.Marshal(fvList)
+	putBody := []byte(`{"fieldValue":{"id":"fvE","value":"new"}}`)
+
+	td := &testDoer{getBody: fvBody, putBody: putBody}
+	svc := NewRealServiceFromDoer(td)
+
+	out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(context.Background(), "c1", "", "new")
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if apiResp == nil || apiResp.StatusCode != 200 {
+		t.Fatalf("expected 200, got %+v", apiResp)
+	}
+	if out == nil || out.FieldValue.ID != "fvE" {
+		t.Fatalf("unexpected output: %+v", out)
+	}
+}
+
+// errThenPostDoer returns errors for GET fields and GET fieldValues calls,
+// but responds to POST /fieldValues with a created response.
+type errThenPostDoer struct{ postBody []byte }
+
+func (d *errThenPostDoer) Do(ctx context.Context, method, path string, v interface{}, out interface{}) (*client.APIResponse, error) {
+	if method == "GET" && strings.Contains(path, "fields") {
+		return nil, errors.New("fields error")
+	}
+	if method == "GET" && strings.Contains(path, "fieldValues") {
+		return nil, errors.New("fv error")
+	}
+	if method == "POST" && strings.Contains(path, "fieldValues") {
+		if out != nil && d.postBody != nil {
+			_ = json.Unmarshal(d.postBody, out)
+		}
+		return &client.APIResponse{StatusCode: 201, Body: d.postBody}, nil
+	}
+	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{}`)}
+	return md.Do(ctx, method, path, v, out)
+}
+
+func TestRealService_UpdateOrCreateFieldValueForContact_ListAndGetError_FallsbackToPost(t *testing.T) {
+	postBody := []byte(`{"fieldValue":{"id":"fvpost","value":"new"}}`)
+	svc := NewRealServiceFromDoer(&errThenPostDoer{postBody: postBody})
+	out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(context.Background(), "c1", "nonmatch", "new")
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if apiResp == nil || apiResp.StatusCode != 201 {
+		t.Fatalf("expected 201, got %+v", apiResp)
+	}
+	if out == nil || out.FieldValue.ID != "fvpost" {
+		t.Fatalf("unexpected output: %+v", out)
 	}
 }
