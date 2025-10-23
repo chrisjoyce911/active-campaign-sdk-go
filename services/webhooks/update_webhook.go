@@ -3,28 +3,19 @@ package webhooks
 import (
 	"context"
 	"fmt"
+	"path"
+
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
 // UpdateWebhook updates an existing webhook.
-//
-// What & Why:
-//
-//	Update webhook endpoint or events.
-//
-// Docs:
-//
-//	Reference: https://developers.activecampaign.com/reference#update-webhook
-//
-// Parameters:
-//
-//	ctx: context
-//	id: webhook ID
-//	req: payload
-//
-// Returns:
-//
-//	(interface{}, *client.APIResponse, error)
-func (s *service) UpdateWebhook(ctx context.Context, id string, req interface{}) (interface{}, *client.APIResponse, error) {
-	return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#update-webhook")
+func (s *service) UpdateWebhook(ctx context.Context, id string, req *UpdateWebhookRequest) (*UpdateWebhookResponse, *client.APIResponse, error) {
+	if s == nil || s.client == nil {
+		return nil, nil, fmt.Errorf("service not configured: UpdateWebhook")
+	}
+
+	var out UpdateWebhookResponse
+	p := path.Join("webhooks", id)
+	apiResp, err := s.client.Do(ctx, "PUT", p, req, &out)
+	return &out, apiResp, err
 }

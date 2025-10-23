@@ -8,23 +8,12 @@ import (
 )
 
 // CreateWebhook creates a webhook.
-//
-// What & Why:
-//
-//	Registers a webhook endpoint to receive ActiveCampaign events.
-//
-// Docs:
-//
-//	Reference: https://developers.activecampaign.com/reference#create-webhook
-//
-// Parameters:
-//
-//	ctx: context
-//	req: payload
-//
-// Returns:
-//
-//	(interface{}, *client.APIResponse, error)
-func (s *service) CreateWebhook(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
-	return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#create-webhook")
+func (s *service) CreateWebhook(ctx context.Context, req *CreateWebhookRequest) (*CreateWebhookResponse, *client.APIResponse, error) {
+	if s == nil || s.client == nil {
+		return nil, nil, fmt.Errorf("service not configured: CreateWebhook")
+	}
+
+	var out CreateWebhookResponse
+	apiResp, err := s.client.Do(ctx, "POST", "webhooks", req, &out)
+	return &out, apiResp, err
 }

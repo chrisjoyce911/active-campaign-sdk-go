@@ -25,6 +25,10 @@ func TestWebhooks_NotImplementedPlaceholders(t *testing.T) {
 				_, _, err := (&service{}).ListWebhooks(context.Background(), nil)
 				return err
 			}},
+			{"ListWebhookEvents", func() error {
+				_, _, err := (&service{}).ListWebhookEvents(context.Background(), nil)
+				return err
+			}},
 			{"DeleteWebhook", func() error {
 				_, err := (&service{}).DeleteWebhook(context.Background(), "1")
 				return err
@@ -39,7 +43,7 @@ func TestWebhooks_NotImplementedPlaceholders(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				err := tc.fn()
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), "not implemented")
+				assert.Contains(t, err.Error(), "service not configured")
 			})
 		}
 	})
