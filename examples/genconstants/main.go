@@ -19,9 +19,9 @@ func main() {
 	}
 
 	gen := genconstants.NewGenerator(base, token)
-	gen.SetOutputPath("examples/gen-constants/constants.go")
+	gen.SetOutputPath("examples/genconstants-constants/constants.go")
 	gen.SetPackageName("active")
-	gen.SetMapPath("examples/gen-constants/.gen-constants.map.json")
+	gen.SetMapPath("examples/genconstants-constants/.gen-constants.map.json")
 
 	if err := gen.Generate(); err != nil {
 		fmt.Println("Error generating constants:", err)

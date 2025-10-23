@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -11,14 +12,26 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Example: list campaigns and print their status
-// Usage:
-//
-//	export AC_BASE_URL="https://youraccount.api-us1.com"
-//	export AC_TOKEN="your_token"
-//	go run ./examples/list_campaigns
-func main() {
+// Run prints campaign statuses using the provided campaigns service and writer.
+func Run(ctx context.Context, svc campaigns.CampaignsService, out io.Writer) error {
+	list, apiResp, err := svc.ListCampaigns(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("list campaigns: %w (api resp: %+v)", err, apiResp)
+	}
 
+	for _, c := range list.Campaigns {
+		i, perr := c.StatusInt()
+		if perr != nil {
+			fmt.Fprintf(out, "campaign %s (%s): status parse error: %v\n", c.ID, c.Name, perr)
+			continue
+		}
+		st := c.StatusEnum()
+		fmt.Fprintf(out, "campaign %s (%s): status=%d (%s)\n", c.ID, c.Name, i, st.String())
+	}
+	return nil
+}
+
+func main() {
 	_ = godotenv.Load()
 
 	base := os.Getenv("ACTIVE_URL")
@@ -35,19 +48,7 @@ func main() {
 	svc := campaigns.NewRealService(core)
 
 	ctx := context.Background()
-
-	list, apiResp, err := svc.ListCampaigns(ctx, nil)
-	if err != nil {
-		log.Fatalf("list campaigns: %v (api resp: %+v)", err, apiResp)
-	}
-
-	for _, c := range list.Campaigns {
-		i, perr := c.StatusInt()
-		if perr != nil {
-			fmt.Printf("campaign %s (%s): status parse error: %v\n", c.ID, c.Name, perr)
-			continue
-		}
-		st := c.StatusEnum()
-		fmt.Printf("campaign %s (%s): status=%d (%s)\n", c.ID, c.Name, i, st.String())
+	if err := Run(ctx, svc, os.Stdout); err != nil {
+		log.Fatalf("%v", err)
 	}
 }
