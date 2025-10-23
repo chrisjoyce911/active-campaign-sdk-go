@@ -168,8 +168,12 @@ func loadMapping(path string) (*MappingFile, error) {
 	return mf, nil
 }
 
+// jsonMarshalIndent is a wrapper around json.MarshalIndent so tests can
+// override it to simulate marshal failures.
+var jsonMarshalIndent = json.MarshalIndent
+
 func saveMapping(path string, mf *MappingFile) error {
-	b, err := json.MarshalIndent(mf, "", "  ")
+	b, err := jsonMarshalIndent(mf, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -313,9 +317,6 @@ func renderConsts(w io.Writer, prefix string, kvs []KV, mapping map[string]strin
 func shortHash(s string) string {
 	sum := sha1.Sum([]byte(s))
 	hex := fmt.Sprintf("%x", sum[:])
-	if len(hex) < 8 {
-		return hex
-	}
 	return hex[:8]
 }
 
