@@ -2,12 +2,6 @@
 
 Accounts service interface and implementation.
 
-TODO:
-
-- Define AccountsService interface
-- Add models and implementation
-- Add mocks and tests
-
 ## Create an account
 
 POST https://{youraccountname}.api-us1.com/api/3/accounts

@@ -6,17 +6,22 @@ import (
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestRealService_UpdateField(t *testing.T) {
-	body := []byte(`{"field": {"id":"f1","title":"X-Updated"}}`)
-	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: body}
+func TestUpdateField_DelegatesToUpdateCustomField(t *testing.T) {
+	// Verify UpdateField delegates to UpdateCustomField and decodes response
+	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"field":{"id":"f1"}}`)}
 	svc := NewRealServiceFromDoer(md)
 
-	req := &FieldPayload{Title: "X-Updated"}
-	out, apiResp, err := svc.UpdateCustomField(context.Background(), "f1", req)
-	assert.NoError(t, err)
-	assert.Equal(t, 200, apiResp.StatusCode)
-	assert.Equal(t, "f1", out.Field.ID)
+	req := &FieldPayload{Title: "T"}
+	out, apiResp, err := svc.UpdateField(context.Background(), "f1", req)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
+	if apiResp == nil || apiResp.StatusCode != 200 {
+		t.Fatalf("expected 200, got %+v", apiResp)
+	}
+	if out == nil || out.Field.ID != "f1" {
+		t.Fatalf("unexpected out: %+v", out)
+	}
 }

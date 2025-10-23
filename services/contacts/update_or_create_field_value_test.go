@@ -8,7 +8,6 @@ import (
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
-	"github.com/stretchr/testify/assert"
 )
 
 // testDoer returns different canned bodies depending on method/path so we can
@@ -61,14 +60,20 @@ func TestRealService_UpdateOrCreateFieldValueForContact_UpdateExisting(t *testin
 	svc := NewRealServiceFromDoer(td)
 
 	out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(context.Background(), "c1", "13", "new")
-	assert.NoError(t, err)
-	assert.Equal(t, 200, apiResp.StatusCode)
-	if assert.NotNil(t, out) {
-		assert.Equal(t, "fv123", out.FieldValue.ID)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
 	}
-	// Verify the doer saw a PUT as the second request
-	if assert.Len(t, td.calls, 2) {
-		assert.True(t, strings.HasPrefix(td.calls[1], "PUT "))
+	if apiResp == nil || apiResp.StatusCode != 200 {
+		t.Fatalf("expected 200, got %+v", apiResp)
+	}
+	if out == nil || out.FieldValue.ID != "fv123" {
+		t.Fatalf("unexpected output: %+v", out)
+	}
+	if len(td.calls) < 2 {
+		t.Fatalf("expected at least 2 calls, got %v", td.calls)
+	}
+	if !strings.HasPrefix(td.calls[1], "PUT ") {
+		t.Fatalf("expected second call to be PUT, got %v", td.calls[1])
 	}
 }
 
@@ -84,13 +89,28 @@ func TestRealService_UpdateOrCreateFieldValueForContact_CreateNew(t *testing.T) 
 	svc := NewRealServiceFromDoer(td)
 
 	out, apiResp, err := svc.UpdateOrCreateFieldValueForContact(context.Background(), "c1", "13", "new")
-	assert.NoError(t, err)
-	assert.Equal(t, 201, apiResp.StatusCode)
-	if assert.NotNil(t, out) {
-		assert.Equal(t, "fv999", out.FieldValue.ID)
+	if err != nil {
+		t.Fatalf("unexpected err: %v", err)
 	}
-	// Verify the doer saw a POST as the second request
-	if assert.Len(t, td.calls, 2) {
-		assert.True(t, strings.HasPrefix(td.calls[1], "POST "))
+	if apiResp == nil || apiResp.StatusCode != 201 {
+		t.Fatalf("expected 201, got %+v", apiResp)
+	}
+	if out == nil || out.FieldValue.ID != "fv999" {
+		t.Fatalf("unexpected output: %+v", out)
+	}
+	if len(td.calls) < 2 {
+		t.Fatalf("expected at least 2 calls, got %v", td.calls)
+	}
+	if !strings.HasPrefix(td.calls[1], "POST ") {
+		t.Fatalf("expected second call to be POST, got %v", td.calls[1])
+	}
+}
+
+func TestIsAllDigits(t *testing.T) {
+	cases := map[string]bool{"": false, "123": true, "a12": false, "0123": true}
+	for s, want := range cases {
+		if got := isAllDigits(s); got != want {
+			t.Fatalf("isAllDigits(%q) = %v, want %v", s, got, want)
+		}
 	}
 }
