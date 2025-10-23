@@ -26,7 +26,8 @@ func (s *service) CampaignLinks(ctx context.Context, id string, messageID *strin
 	if err != nil {
 		return nil, apiResp, err
 	}
-	if out == nil {
+	// If the response container is nil or contains no links, return nil slice
+	if out == nil || len(out.Links) == 0 {
 		return nil, apiResp, nil
 	}
 	if messageID == nil {
