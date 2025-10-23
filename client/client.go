@@ -17,5 +17,3 @@ import (
 type Client interface {
 	Do(ctx context.Context, req *http.Request, v interface{}) (*APIResponse, error)
 }
-
-// ...existing code...
