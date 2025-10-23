@@ -1,6 +1,7 @@
 # services/ecommerce
 
-E-Commerce Customers
+## E-Commerce Customers
+
 E-commerce customer resources represent a customer in an external e-commerce service such as Shopify. Customer resources primarily hold aggregate e-commerce data associated with a contact including the total revenue, total number of orders, and total number of products ordered (see the table below). This data cannot be saved to a customer object directly, but will be updated when order resources are created or updated for a customer. Note that a customer is related to a contact by the email address.
 
 Field
@@ -32,7 +33,7 @@ Fields representing a monetary value are formatted in the lowest unit of the cur
 
 The API allows you to create, update, and delete customer resources. You can retrieve individual customers as well as a list of all customers. Before you can create any customers, you must have created a connection resource for the e-commerce service.
 
-## Create a customer
+### Create a customer
 
 POST https://{youraccountname}.api-us1.com/api/3/ecomCustomers
 Create a new e-commerce customer resource.
@@ -109,7 +110,7 @@ curl --request POST \
 {}
 ```
 
-## Retrieve a customer
+### Retrieve a customer
 
 GET https://{youraccountname}.api-us1.com/api/3/ecomCustomers/{id}
 Retrieve an existing e-commerce customer resource.
@@ -174,7 +175,7 @@ curl --request GET \
 {}
 ```
 
-## Update a customer
+### Update a customer
 
 PUT https://{youraccountname}.api-us1.com/api/3/ecomCustomers/{id}
 Update an existing e-commerce customer resource.
@@ -250,7 +251,7 @@ curl --request PUT \
 }
 ```
 
-## Delete a customer
+### Delete a customer
 
 DELETE https://{youraccountname}.api-us1.com/api/3/ecomCustomers/{id}
 Delete an existing e-commerce customer resource.
@@ -412,12 +413,14 @@ Filter by the id of the connection object for the service where the customer ori
 }
 ```
 
-E-Commerce Orders
+## E-Commerce Orders
+
 E-Commerce order resources represent orders in an external e-commerce service such as Shopify. The API allows you to create, update, and delete order resources. You can retrieve individual orders as well as a list of all orders. Before you can create any orders, you must have created a connection resource for the e-commerce service and a customer resource for the customer who placed the order.
 
 Orders can be created from two primary sources: real-time webhooks/events and historical syncs. Orders should only be marked as “real-time” if the order data is transmitted at the time of purchase. If the purchase occurred in the past, the order should be marked as “historical”.
 
-Create an order
+### Create an order
+
 POST https://{youraccountname}.api-us1.com/api/3/ecomOrders
 Create a new e-commerce order resource.
 
@@ -735,7 +738,7 @@ curl --request POST \
 }
 ```
 
-## Retrieve an order
+### Retrieve an order
 
 GET https://{youraccountname}.api-us1.com/api/3/ecomOrders/{ecomOrderId}
 Retrieve an existing e-commerce order resource.
@@ -828,7 +831,8 @@ curl --request GET \
 }
 ```
 
-Update an order
+### Update an order
+
 PUT https://{youraccountname}.api-us1.com/api/3/ecomOrders/{id}
 Update an existing ecommerce order/cart resource.
 
@@ -1131,7 +1135,7 @@ curl --request PUT \
 }
 ```
 
-## Delete an order
+### Delete an order
 
 DELETE https://{youraccountname}.api-us1.com/api/3/ecomOrders/{ecomOrderId}
 Delete an existing e-commerce order resource.
@@ -1148,7 +1152,8 @@ curl --request DELETE \
 {}
 ```
 
-List all orders
+### List all orders
+
 GET https://{youraccountname}.api-us1.com/api/3/ecomOrders
 List all existing e-commerce order resources.
 
@@ -1314,11 +1319,11 @@ curl --request GET \
 {}
 ```
 
-# E-Commerce Order Products
+## E-Commerce Order Products
 
 E-Commerce Order Product resources represent a combination of line items and products in an external e-commerce service such as Shopify. The API allows you to query these resources, but to create them you must create them as part of an order.
 
-## List EcomOrderProducts
+### List EcomOrderProducts
 
 GET https://{youraccountname}.api-us1.com/api/3/ecomOrderProducts
 
@@ -1392,7 +1397,7 @@ curl --request GET \
 {}
 ```
 
-## List EcomOrderProducts for a Specific EcomOrder
+### List EcomOrderProducts for a Specific EcomOrder
 
 GET https://{youraccountname}.api-us1.com/api/3/ecomOrders/{id}/orderProducts
 
@@ -1466,7 +1471,8 @@ curl --request GET \
 {}
 ```
 
-Retrieve an EcomOrderProduct
+### Retrieve an EcomOrderProduct
+
 GET https://{youraccountname}.api-us1.com/api/3/ecomOrderProducts/{id}
 
 ```json

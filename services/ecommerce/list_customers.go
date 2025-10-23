@@ -8,15 +8,14 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
-// ListOrders lists e-commerce orders.
+// ListCustomers lists e-commerce customers.
 // See: https://developers.activecampaign.com/reference#ecommerce
-func (s *service) ListOrders(ctx context.Context, opts map[string]string) (*EcomOrderListResponse, *client.APIResponse, error) {
+func (s *service) ListCustomers(ctx context.Context, opts map[string]string) (*EcomCustomerListResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("ecommerce service not configured: missing client")
 	}
-	// API returns wrapper {"ecomOrders": [...], "meta": {...}}
-	var wrapper EcomOrderListResponse
-	apiResp, err := s.client.Do(ctx, http.MethodGet, "ecomOrders", opts, &wrapper)
+	var wrapper EcomCustomerListResponse
+	apiResp, err := s.client.Do(ctx, http.MethodGet, "ecomCustomers", opts, &wrapper)
 	if err != nil {
 		return nil, apiResp, err
 	}

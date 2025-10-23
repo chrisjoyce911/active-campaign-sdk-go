@@ -8,19 +8,19 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
-// UpdateOrder updates an e-commerce order.
+// UpdateCustomer updates an e-commerce customer.
 // See: https://developers.activecampaign.com/reference#ecommerce
-func (s *service) UpdateOrder(ctx context.Context, id string, req UpdateOrderRequest) (*EcomOrder, *client.APIResponse, error) {
+func (s *service) UpdateCustomer(ctx context.Context, id string, req UpdateCustomerRequest) (*EcomCustomer, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("ecommerce service not configured: missing client")
 	}
 	var wrapper struct {
-		EcomOrder EcomOrder `json:"ecomOrder"`
+		EcomCustomer EcomCustomer `json:"ecomCustomer"`
 	}
-	path := "ecomOrders/" + id
+	path := "ecomCustomers/" + id
 	apiResp, err := s.client.Do(ctx, http.MethodPut, path, req, &wrapper)
 	if err != nil {
 		return nil, apiResp, err
 	}
-	return &wrapper.EcomOrder, apiResp, nil
+	return &wrapper.EcomCustomer, apiResp, nil
 }

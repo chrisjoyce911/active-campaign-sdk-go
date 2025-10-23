@@ -14,7 +14,7 @@ func TestEcommerce_NotImplementedPlaceholders(t *testing.T) {
 			fn   func() error
 		}{
 			{"CreateOrder", func() error {
-				_, _, err := (&service{}).CreateOrder(context.Background(), nil)
+				_, _, err := (&service{}).CreateOrder(context.Background(), CreateOrderRequest{})
 				return err
 			}},
 		}
@@ -23,7 +23,7 @@ func TestEcommerce_NotImplementedPlaceholders(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				err := tc.fn()
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), "not implemented")
+				assert.Contains(t, err.Error(), "ecommerce service not configured")
 			})
 		}
 	})

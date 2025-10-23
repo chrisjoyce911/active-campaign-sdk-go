@@ -8,19 +8,19 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 )
 
-// GetOrder retrieves an e-commerce order by ID.
+// GetCustomer retrieves an e-commerce customer by ID.
 // See: https://developers.activecampaign.com/reference#ecommerce
-func (s *service) GetOrder(ctx context.Context, id string) (*EcomOrder, *client.APIResponse, error) {
+func (s *service) GetCustomer(ctx context.Context, id string) (*EcomCustomer, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("ecommerce service not configured: missing client")
 	}
 	var wrapper struct {
-		EcomOrder EcomOrder `json:"ecomOrder"`
+		EcomCustomer EcomCustomer `json:"ecomCustomer"`
 	}
-	path := "ecomOrders/" + id
+	path := "ecomCustomers/" + id
 	apiResp, err := s.client.Do(ctx, http.MethodGet, path, nil, &wrapper)
 	if err != nil {
 		return nil, apiResp, err
 	}
-	return &wrapper.EcomOrder, apiResp, nil
+	return &wrapper.EcomCustomer, apiResp, nil
 }
