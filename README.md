@@ -134,6 +134,33 @@ Notes & assumptions
 
 If you'd like an exportable checklist (Markdown) filtered to a subset of services or a pull request ready to update the README on a different branch, tell me which services to prioritize and I'll update the file accordingly.
 
+## Generator (genconstants)
+
+This repository includes a small generator that fetches Tags, Custom Fields
+and Lists from an ActiveCampaign account and emits a typed Go source file.
+See `genconstants/README.md` for usage examples and details.
+
+Example generated output (short)
+
+```go
+package active
+
+type TagsType struct {
+    Awfa string
+    SomeOtherTag string
+}
+
+var Tags = TagsType{
+    Awfa: "123",
+    SomeOtherTag: "456",
+}
+
+var TagsByID = map[string]string{
+    "123": "Awfa",
+    "456": "SomeOtherTag",
+}
+```
+
 # Active Campaign API Reference
 
 Accounts

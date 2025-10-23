@@ -232,7 +232,7 @@ func (r *CreateRecordRequest) MarshalJSON() ([]byte, error) {
 		}
 		out["fields"] = items
 	}
-	if r.Relationships != nil && len(r.Relationships) > 0 {
+	if len(r.Relationships) > 0 {
 		out["relationships"] = r.Relationships
 	}
 	return json.Marshal(out)
