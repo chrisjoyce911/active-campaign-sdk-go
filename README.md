@@ -467,3 +467,5 @@ cc.SetDebugFilter(func(method, path string) bool {
     return strings.Contains(path, "/customObjects/")
 })
 ```
+
+[https://codecov.io/gh/chrisjoyce911/active-campaign-sdk-go/graphs/sunburst.svg?token=RM7LL6MFUO]
