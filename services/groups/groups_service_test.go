@@ -73,9 +73,8 @@ func TestGroups_Constructors(t *testing.T) {
 	// NewRealService should accept a CoreClient pointer; exercise NewRealServiceFromDoer
 	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{}`)}
 	svc := NewRealServiceFromDoer(md)
-	// type check: should implement GroupsService
-	_, ok := svc.(GroupsService)
-	assert.True(t, ok)
+	// NewRealServiceFromDoer returns a GroupsService already; just ensure value is not nil
+	assert.NotNil(t, svc)
 }
 
 func TestNewRealService(t *testing.T) {
@@ -83,6 +82,6 @@ func TestNewRealService(t *testing.T) {
 	cc, err := client.NewCoreClient("https://example.com/", "")
 	assert.NoError(t, err)
 	svc := NewRealService(cc)
-	_, ok := svc.(GroupsService)
-	assert.True(t, ok)
+	// type check: should implement GroupsService
+	var _ GroupsService = svc
 }
