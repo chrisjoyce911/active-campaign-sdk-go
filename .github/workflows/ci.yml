@@ -34,10 +34,18 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Run tests
+      - name: Run tests (exclude examples from coverage)
         run: |
+          # Collect package list, excluding packages under ./examples, then run tests
+          pkgs=$(go list ./... | grep -v '^./examples')
+          echo "Testing packages:" 
+          echo "$pkgs"
+          if [ -z "$pkgs" ]; then
+            echo "No packages to test"
+            exit 0
+          fi
           # Run tests with coverage output. If tests fail, the job will fail here.
-          go test ./... -v -coverprofile=coverage.out
+          go test $pkgs -v -coverprofile=coverage.out
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
