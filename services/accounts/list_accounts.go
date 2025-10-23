@@ -27,11 +27,11 @@ import (
 // Returns:
 //
 //	(interface{}, *client.APIResponse, error)
-func (s *service) ListAccounts(ctx context.Context, opts map[string]string) (interface{}, *client.APIResponse, error) {
+func (s *service) ListAccounts(ctx context.Context, opts map[string]string) (*ListAccountsResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#list-accounts")
 	}
-	var out interface{}
+	var out ListAccountsResponse
 	base := "accounts"
 	if len(opts) > 0 {
 		vals := url.Values{}
@@ -41,5 +41,8 @@ func (s *service) ListAccounts(ctx context.Context, opts map[string]string) (int
 		base = base + "?" + vals.Encode()
 	}
 	apiResp, err := s.client.Do(ctx, http.MethodGet, base, nil, &out)
-	return out, apiResp, err
+	if err != nil {
+		return nil, apiResp, err
+	}
+	return &out, apiResp, nil
 }

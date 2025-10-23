@@ -27,12 +27,15 @@ import (
 // Returns:
 //
 //	(interface{}, *client.APIResponse, error)
-func (s *service) CreateAccountNote(ctx context.Context, accountID string, req interface{}) (interface{}, *client.APIResponse, error) {
+func (s *service) CreateAccountNote(ctx context.Context, accountID string, req *AccountNoteRequest) (*AccountNoteResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#create-account-note")
 	}
-	var out interface{}
+	var out AccountNoteResponse
 	path := "accounts/" + accountID + "/notes"
 	apiResp, err := s.client.Do(ctx, http.MethodPost, path, req, &out)
-	return out, apiResp, err
+	if err != nil {
+		return nil, apiResp, err
+	}
+	return &out, apiResp, nil
 }

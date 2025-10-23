@@ -14,10 +14,10 @@ func TestService_CreateAccount(t *testing.T) {
 		name       string
 		mockResp   *client.APIResponse
 		mockBody   []byte
-		req        interface{}
+		req        *CreateAccountRequest
 		wantStatus int
 	}{
-		{name: "ok", mockResp: &client.APIResponse{StatusCode: 201}, mockBody: []byte(`{"account":{"id":"a1"}}`), req: map[string]interface{}{"name": "X"}, wantStatus: 201},
+		{name: "ok", mockResp: &client.APIResponse{StatusCode: 201}, mockBody: []byte(`{"account":{"id":"a1"}}`), req: &CreateAccountRequest{Account: Account{ID: "", Name: nil}}, wantStatus: 201},
 	}
 
 	for _, tt := range tests {

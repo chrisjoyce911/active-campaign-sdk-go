@@ -19,13 +19,13 @@ type service struct {
 
 type AccountsService interface {
 	// GetAccount fetches a single account by ID
-	GetAccount(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetAccount(ctx context.Context, id string) (*CreateAccountResponse, *client.APIResponse, error)
 
 	// CreateAccount creates a new account
-	CreateAccount(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	CreateAccount(ctx context.Context, req *CreateAccountRequest) (*CreateAccountResponse, *client.APIResponse, error)
 
 	// ListAccounts lists accounts with optional query params
-	ListAccounts(ctx context.Context, opts map[string]string) (interface{}, *client.APIResponse, error)
+	ListAccounts(ctx context.Context, opts map[string]string) (*ListAccountsResponse, *client.APIResponse, error)
 
 	// DeleteAccount deletes a single account by ID
 	DeleteAccount(ctx context.Context, id string) (*client.APIResponse, error)
@@ -34,11 +34,11 @@ type AccountsService interface {
 	BulkDeleteAccounts(ctx context.Context, ids []string) (*client.APIResponse, error)
 
 	// UpdateAccount updates an account by ID
-	UpdateAccount(ctx context.Context, id string, req interface{}) (interface{}, *client.APIResponse, error)
+	UpdateAccount(ctx context.Context, id string, req *UpdateAccountRequest) (*CreateAccountResponse, *client.APIResponse, error)
 
 	// CreateAccountNote creates a note for an account
-	CreateAccountNote(ctx context.Context, accountID string, req interface{}) (interface{}, *client.APIResponse, error)
+	CreateAccountNote(ctx context.Context, accountID string, req *AccountNoteRequest) (*AccountNoteResponse, *client.APIResponse, error)
 
 	// UpdateAccountNote updates an existing account note
-	UpdateAccountNote(ctx context.Context, noteID string, req interface{}) (interface{}, *client.APIResponse, error)
+	UpdateAccountNote(ctx context.Context, noteID string, req *AccountNoteRequest) (*AccountNoteResponse, *client.APIResponse, error)
 }

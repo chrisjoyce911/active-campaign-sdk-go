@@ -27,12 +27,12 @@ import (
 // Returns:
 //
 //	(interface{}, *client.APIResponse, error)
-func (s *service) UpdateAccountNote(ctx context.Context, noteID string, req interface{}) (interface{}, *client.APIResponse, error) {
+func (s *service) UpdateAccountNote(ctx context.Context, noteID string, req *AccountNoteRequest) (*AccountNoteResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#update-account-note")
 	}
-	var out interface{}
+	var out AccountNoteResponse
 	path := "accounts/notes/" + noteID
 	apiResp, err := s.client.Do(ctx, http.MethodPut, path, req, &out)
-	return out, apiResp, err
+	return &out, apiResp, err
 }

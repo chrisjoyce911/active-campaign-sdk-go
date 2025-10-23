@@ -27,12 +27,15 @@ import (
 // Returns:
 //
 //	(interface{}, *client.APIResponse, error)
-func (s *service) GetAccount(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
+func (s *service) GetAccount(ctx context.Context, id string) (*CreateAccountResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#get-account")
 	}
-	var out interface{}
+	var out CreateAccountResponse
 	path := "accounts/" + id
 	apiResp, err := s.client.Do(ctx, http.MethodGet, path, nil, &out)
-	return out, apiResp, err
+	if err != nil {
+		return nil, apiResp, err
+	}
+	return &out, apiResp, nil
 }

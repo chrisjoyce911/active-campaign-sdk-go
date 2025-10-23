@@ -27,11 +27,14 @@ import (
 // Returns:
 //
 //	(interface{}, *client.APIResponse, error)
-func (s *service) CreateAccount(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+func (s *service) CreateAccount(ctx context.Context, req *CreateAccountRequest) (*CreateAccountResponse, *client.APIResponse, error) {
 	if s == nil || s.client == nil {
 		return nil, nil, fmt.Errorf("not implemented: see https://developers.activecampaign.com/reference#create-an-account-new")
 	}
-	var out interface{}
+	var out CreateAccountResponse
 	apiResp, err := s.client.Do(ctx, http.MethodPost, "accounts", req, &out)
-	return out, apiResp, err
+	if err != nil {
+		return nil, apiResp, err
+	}
+	return &out, apiResp, nil
 }
