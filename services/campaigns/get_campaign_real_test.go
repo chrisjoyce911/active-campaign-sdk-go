@@ -8,6 +8,7 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	th "github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRealService_GetCampaign(t *testing.T) {
@@ -30,7 +31,11 @@ func TestRealService_GetCampaign(t *testing.T) {
 			if tt.name == "doer error" {
 				md = &th.MockDoer{Err: errExample}
 			}
+			require := require.New(t)
+			require.NotNil(md)
+
 			svc := NewRealServiceFromDoer(md)
+			require.NotNil(svc)
 
 			out, apiResp, err := svc.GetCampaign(context.Background(), tt.id)
 			if tt.wantErr {
@@ -38,9 +43,8 @@ func TestRealService_GetCampaign(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			if apiResp != nil {
-				assert.Equal(t, tt.wantStatus, apiResp.StatusCode)
-			}
+			require.NotNil(apiResp)
+			assert.Equal(t, tt.wantStatus, apiResp.StatusCode)
 			_ = out
 		})
 	}

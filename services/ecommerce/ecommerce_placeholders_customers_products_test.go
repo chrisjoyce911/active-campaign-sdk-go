@@ -5,10 +5,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCustomersAndProducts_Placeholders(t *testing.T) {
 	s := &service{}
+	require := require.New(t)
+	require.NotNil(s)
 
 	// Customers placeholders
 	_, _, err := s.CreateCustomer(context.Background(), CreateCustomerRequest{})

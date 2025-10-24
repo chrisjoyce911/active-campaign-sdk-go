@@ -7,6 +7,7 @@ import (
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRealService_CreateContact_RequestShape(t *testing.T) {
@@ -25,7 +26,11 @@ func TestRealService_CreateContact_RequestShape(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			hd := &testhelpers.HTTPDoer{BaseURL: "https://example.api-us1.com/api/3/", Token: "tok", RespStatus: tc.respStatus, RespBody: tc.respBody}
+			require := require.New(t)
+			require.NotNil(hd)
+
 			svc := NewRealServiceFromDoer(hd)
+			require.NotNil(svc)
 
 			out, apiResp, err := svc.Create(context.Background(), tc.req)
 			if tc.respStatus >= 200 && tc.respStatus < 300 {
@@ -33,6 +38,7 @@ func TestRealService_CreateContact_RequestShape(t *testing.T) {
 				assert.NotNil(t, out)
 			}
 			if apiResp != nil {
+				require.NotNil(apiResp)
 				assert.Equal(t, tc.respStatus, apiResp.StatusCode)
 			}
 

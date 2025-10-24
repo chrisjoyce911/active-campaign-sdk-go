@@ -7,56 +7,87 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestWebhooks_ServiceMethods_HappyPath(t *testing.T) {
-	// Create
-	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 201}, Body: []byte(`{"webhook":{"id":"1","name":"My Hook","url":"http://example.com","events":["subscribe"],"sources":["public"]}}`)}
-	svc := NewRealServiceFromDoer(md)
+func TestWebhooks_ServiceMethods_HappyPath_TableDriven(t *testing.T) {
+	// shared mock payloads used for the various happy-path calls
+	createBody := []byte(`{"webhook":{"id":"1","name":"My Hook","url":"http://example.com","events":["subscribe"],"sources":["public"]}}`)
+	basicWebhookBody := []byte(`{"webhook":{"id":"1","name":"My Hook"}}`)
+	listBody := []byte(`{"webhooks":[{"id":"1","name":"My Hook"}],"meta":{"total":"1"}}`)
+	eventsBody := []byte(`{"events":["subscribe","unsubscribe"]}`)
+	updateBody := []byte(`{"webhook":{"id":"1","name":"Updated"}}`)
 
-	crReq := &CreateWebhookRequest{Webhook: &Webhook{Name: "My Hook", URL: "http://example.com", Events: []string{"subscribe"}, Sources: []string{"public"}}}
-	crOut, resp, err := svc.CreateWebhook(context.Background(), crReq)
-	assert.NoError(t, err)
-	assert.NotNil(t, resp)
-	assert.Equal(t, "1", crOut.Webhook.ID)
+	cases := []struct {
+		name string
+		call string
+		resp *client.APIResponse
+		body []byte
+	}{
+		{name: "create", call: "create", resp: &client.APIResponse{StatusCode: 201}, body: createBody},
+		{name: "get", call: "get", resp: &client.APIResponse{StatusCode: 200}, body: basicWebhookBody},
+		{name: "list", call: "list", resp: &client.APIResponse{StatusCode: 200}, body: listBody},
+		{name: "list-events", call: "list-events", resp: &client.APIResponse{StatusCode: 200}, body: eventsBody},
+		{name: "update", call: "update", resp: &client.APIResponse{StatusCode: 200}, body: updateBody},
+		{name: "delete", call: "delete", resp: &client.APIResponse{StatusCode: 200}, body: []byte(`{}`)},
+	}
 
-	// Get
-	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"webhook":{"id":"1","name":"My Hook"}}`)}
-	svc = NewRealServiceFromDoer(md)
-	gOut, _, err := svc.GetWebhook(context.Background(), "1")
-	assert.NoError(t, err)
-	assert.Equal(t, "1", gOut.Webhook.ID)
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assert := assert.New(t)
 
-	// List
-	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"webhooks":[{"id":"1","name":"My Hook"}],"meta":{"total":"1"}}`)}
-	svc = NewRealServiceFromDoer(md)
-	lOut, _, err := svc.ListWebhooks(context.Background(), map[string]string{"filters[name]": "My"})
-	assert.NoError(t, err)
-	assert.Len(t, lOut.Webhooks, 1)
+			md := &testhelpers.MockDoer{Resp: tt.resp, Body: tt.body}
+			require.NotNil(md)
 
-	// List events
-	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"events":["subscribe","unsubscribe"]}`)}
-	svc = NewRealServiceFromDoer(md)
-	eOut, _, err := svc.ListWebhookEvents(context.Background(), nil)
-	assert.NoError(t, err)
-	assert.Contains(t, eOut.Events, "subscribe")
+			svc := NewRealServiceFromDoer(md)
+			require.NotNil(svc)
 
-	// Update
-	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"webhook":{"id":"1","name":"Updated"}}`)}
-	svc = NewRealServiceFromDoer(md)
-	upReq := &UpdateWebhookRequest{Webhook: &Webhook{Name: "Updated"}}
-	uOut, _, err := svc.UpdateWebhook(context.Background(), "1", upReq)
-	assert.NoError(t, err)
-	assert.Equal(t, "Updated", uOut.Webhook.Name)
+			switch tt.call {
+			case "create":
+				crReq := &CreateWebhookRequest{Webhook: &Webhook{Name: "My Hook", URL: "http://example.com", Events: []string{"subscribe"}, Sources: []string{"public"}}}
+				crOut, resp, err := svc.CreateWebhook(context.Background(), crReq)
+				assert.NoError(err)
+				require.NotNil(resp)
+				assert.Equal("1", crOut.Webhook.ID)
 
-	// Delete
-	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{}`)}
-	svc = NewRealServiceFromDoer(md)
-	respDel, err := svc.DeleteWebhook(context.Background(), "1")
-	assert.NoError(t, err)
-	assert.NotNil(t, respDel)
+			case "get":
+				gOut, resp, err := svc.GetWebhook(context.Background(), "1")
+				assert.NoError(err)
+				require.NotNil(resp)
+				assert.Equal("1", gOut.Webhook.ID)
 
-	// NewRealService wiring via CoreClient: construct minimal CoreClient to ensure constructor compiles
-	cc := &client.CoreClient{}
-	_ = NewRealService(cc)
+			case "list":
+				lOut, resp, err := svc.ListWebhooks(context.Background(), map[string]string{"filters[name]": "My"})
+				assert.NoError(err)
+				require.NotNil(resp)
+				assert.Len(lOut.Webhooks, 1)
+
+			case "list-events":
+				eOut, resp, err := svc.ListWebhookEvents(context.Background(), nil)
+				assert.NoError(err)
+				require.NotNil(resp)
+				assert.Contains(eOut.Events, "subscribe")
+
+			case "update":
+				upReq := &UpdateWebhookRequest{Webhook: &Webhook{Name: "Updated"}}
+				uOut, resp, err := svc.UpdateWebhook(context.Background(), "1", upReq)
+				assert.NoError(err)
+				require.NotNil(resp)
+				assert.Equal("Updated", uOut.Webhook.Name)
+
+			case "delete":
+				respDel, err := svc.DeleteWebhook(context.Background(), "1")
+				assert.NoError(err)
+				require.NotNil(respDel)
+			}
+		})
+	}
+
+	// constructor wiring check (kept separate)
+	t.Run("constructor wiring", func(t *testing.T) {
+		cc := &client.CoreClient{}
+		_ = NewRealService(cc)
+	})
 }

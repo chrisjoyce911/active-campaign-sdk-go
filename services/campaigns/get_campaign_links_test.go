@@ -7,6 +7,7 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	th "github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestService_GetCampaignLinks_table(t *testing.T) {
@@ -28,7 +29,11 @@ func TestService_GetCampaignLinks_table(t *testing.T) {
 			if tc.name == "doer error" {
 				md = &th.MockDoer{Err: assert.AnError}
 			}
+			require := require.New(t)
+			require.NotNil(md)
+
 			svc := NewRealServiceFromDoer(md)
+			require.NotNil(svc)
 
 			out, apiResp, err := svc.GetCampaignLinks(context.Background(), tc.id)
 			if tc.wantErr {
@@ -36,9 +41,8 @@ func TestService_GetCampaignLinks_table(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			if apiResp != nil {
-				assert.Equal(t, tc.mockResp.StatusCode, apiResp.StatusCode)
-			}
+			require.NotNil(apiResp)
+			assert.Equal(t, tc.mockResp.StatusCode, apiResp.StatusCode)
 			_ = out
 		})
 	}

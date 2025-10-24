@@ -8,6 +8,7 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateList(t *testing.T) {
@@ -30,7 +31,11 @@ func TestCreateList(t *testing.T) {
 			if tc.wantErr {
 				md.Err = errors.New("invalid")
 			}
+			require := require.New(t)
+			require.NotNil(md)
+
 			svc := NewRealServiceFromDoer(md)
+			require.NotNil(svc)
 
 			out, apiResp, err := svc.CreateList(context.Background(), tc.req)
 			if tc.wantErr {
@@ -41,6 +46,7 @@ func TestCreateList(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
+			require.NotNil(apiResp)
 			assert.Equal(t, tc.wantStatus, apiResp.StatusCode)
 			if assert.NotNil(t, out) {
 				if tc.name == "ok" {

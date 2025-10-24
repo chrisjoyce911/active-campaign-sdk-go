@@ -8,12 +8,16 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
+	require := require.New(t)
 	// AddFieldOption
 	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"fieldOption":{"id":"fo1"}}`)}
+	require.NotNil(md)
 	svc := NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	foOut, apiResp, err := svc.AddFieldOption(context.Background(), &FieldOptionPayload{Value: "v1"})
 	assert.NoError(t, err)
 	assert.Equal(t, 200, apiResp.StatusCode)
@@ -21,7 +25,9 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 
 	// CreateContactTag
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 201}, Body: []byte(`{"contactTag":{"contact":"c1","tag":"t1"}}`)}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	ctOut, apiResp2, err2 := svc.CreateContactTag(context.Background(), &ContactTagRequest{ContactTag: ContactTagPayload{Contact: "c1", Tag: "t1"}})
 	assert.NoError(t, err2)
 	assert.Equal(t, 201, apiResp2.StatusCode)
@@ -29,7 +35,9 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 
 	// CreateField (delegates to CreateCustomField)
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"field":{"id":"f1"}}`)}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	fldOut, apiResp3, err3 := svc.CreateField(context.Background(), &FieldPayload{Title: "x"})
 	assert.NoError(t, err3)
 	assert.Equal(t, 200, apiResp3.StatusCode)
@@ -37,21 +45,27 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 
 	// DeleteField (delegates)
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 204}}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	delResp, err4 := svc.DeleteField(context.Background(), "f1")
 	assert.NoError(t, err4)
 	assert.Equal(t, 204, delResp.StatusCode)
 
 	// DeleteFieldGroup
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	dgResp, err5 := svc.DeleteFieldGroup(context.Background(), "g1")
 	assert.NoError(t, err5)
 	assert.Equal(t, 200, dgResp.StatusCode)
 
 	// GetContactBounceLogs
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"logs": []}`)}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	blOut, blResp, blErr := svc.GetContactBounceLogs(context.Background(), 123)
 	assert.NoError(t, blErr)
 	assert.Equal(t, 200, blResp.StatusCode)
@@ -59,7 +73,9 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 
 	// GetContactByEmailWithTags
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"contacts": []}`)}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	byOut, byResp, byErr := svc.GetContactByEmailWithTags(context.Background(), "x@example.com")
 	assert.NoError(t, byErr)
 	assert.Equal(t, 200, byResp.StatusCode)
@@ -67,7 +83,9 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 
 	// GetContactGoals
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"goals": []}`)}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	gOut, gResp, gErr := svc.GetContactGoals(context.Background(), "c1")
 	assert.NoError(t, gErr)
 	assert.Equal(t, 200, gResp.StatusCode)
@@ -75,7 +93,9 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 
 	// GetContactLists
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"contactLists": []}`)}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	lOut, lResp, lErr := svc.GetContactLists(context.Background(), "c1")
 	assert.NoError(t, lErr)
 	assert.Equal(t, 200, lResp.StatusCode)
@@ -83,7 +103,9 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 
 	// GetContactLogs
 	md = &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: []byte(`{"logs": []}`)}
+	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 	lgOut, lgResp, lgErr := svc.GetContactLogs(context.Background(), "c1")
 	assert.NoError(t, lgErr)
 	assert.Equal(t, 200, lgResp.StatusCode)

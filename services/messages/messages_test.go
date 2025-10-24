@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMessages_NotImplementedPlaceholders(t *testing.T) {
@@ -41,6 +42,12 @@ func TestMessages_NotImplementedPlaceholders(t *testing.T) {
 
 		for _, tc := range tests {
 			t.Run(tc.name, func(t *testing.T) {
+				require := require.New(t)
+
+				svc := &service{}
+				require.NotNil(svc)
+
+				// execute the test function using the prebuilt service where appropriate
 				err := tc.fn()
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "not implemented")

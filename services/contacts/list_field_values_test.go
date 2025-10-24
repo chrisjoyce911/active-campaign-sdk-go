@@ -7,15 +7,21 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRealService_ListFieldValues(t *testing.T) {
 	body := []byte(`{"fieldValues":[{"id":"fv1","value":"v"}]}`)
 	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: body}
+	require := require.New(t)
+	require.NotNil(md)
+
 	svc := NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 
 	out, apiResp, err := svc.ListFieldValues(context.Background())
 	assert.NoError(t, err)
+	require.NotNil(apiResp)
 	assert.Equal(t, 200, apiResp.StatusCode)
 	if assert.NotNil(t, out) {
 		if assert.NotNil(t, out.FieldValues) {

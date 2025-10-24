@@ -8,6 +8,7 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	th "github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateCampaign_Mocked(t *testing.T) {
@@ -28,6 +29,7 @@ func TestCreateCampaign_Mocked(t *testing.T) {
 				md = &th.MockDoer{Err: fmt.Errorf("boom")}
 			}
 			svc := NewRealServiceFromDoer(md)
+			require.NotNil(t, svc)
 
 			req := &CreateCampaignRequest{Name: "x", Type: "single"}
 			out, apiResp, err := svc.CreateCampaign(context.Background(), req)

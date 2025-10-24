@@ -8,15 +8,21 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/internal/testhelpers"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestListCustomFields_Unmarshal_HappyPath(t *testing.T) {
 	body := []byte(`{"fields":[{"id":"f1","title":"X","type":"text"}],"meta":{"total":"1"}}`)
 	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: body}
+	require := require.New(t)
+	require.NotNil(md)
+
 	svc := NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 
 	out, apiResp, err := svc.ListCustomFields(context.Background())
 	assert.NoError(t, err)
+	require.NotNil(apiResp)
 	assert.Equal(t, 200, apiResp.StatusCode)
 	if assert.NotNil(t, out) {
 		// Fields should be present and FieldsOrEmpty should return the item
@@ -33,10 +39,15 @@ func TestListCustomFields_Unmarshal_MissingFieldsKey(t *testing.T) {
 	// body missing the 'fields' key entirely
 	body := []byte(`{"meta":{"total":"0"}}`)
 	md := &testhelpers.MockDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: body}
+	require := require.New(t)
+	require.NotNil(md)
+
 	svc := NewRealServiceFromDoer(md)
+	require.NotNil(svc)
 
 	out, apiResp, err := svc.ListCustomFields(context.Background())
 	assert.NoError(t, err)
+	require.NotNil(apiResp)
 	assert.Equal(t, 200, apiResp.StatusCode)
 	if assert.NotNil(t, out) {
 		// Fields may be nil, but FieldsOrEmpty should return empty slice
