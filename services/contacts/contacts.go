@@ -42,6 +42,13 @@ type ContactsService interface {
 	// Get contact by email (with tags)
 	GetContactByEmailWithTags(ctx context.Context, email string) (interface{}, *client.APIResponse, error)
 
+	// CreateContactWithTags creates a contact and attaches the specified tag
+	// IDs. It returns the created contact response and, if one or more tag
+	// attachments failed, returns the last non-nil APIResponse and error from
+	// the attach calls. If creating the contact fails, the create error is
+	// returned directly.
+	CreateContactWithTags(ctx context.Context, req *CreateContactRequest, tagIDs []string) (*CreateContactResponse, *client.APIResponse, error)
+
 	// Bounce logs, goals, lists, logs, deals, geo, notes, organization, tracking
 	GetContactBounceLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactGoals(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
