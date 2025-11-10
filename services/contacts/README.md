@@ -35,6 +35,65 @@ The package is organized to make the HTTP endpoints easy to use by callers while
   - Convenience wrapper that creates a contact and then attaches the provided tag IDs via `CreateContactTag`.
   - Returns the created contact response and, if any attach fails, the last attach `*client.APIResponse` and error.
 
+### List membership management
+
+ActiveCampaign encodes list membership status as:
+
+- Subscribed: `"1"`
+- Unsubscribed: `"2"`
+
+This package provides helpers to manage a contact’s list memberships safely:
+
+- `UpdateListStatusManaged(ctx, req *UpdateListStatusHelperRequest)`
+  - Reads current memberships via `GetContactLists` and applies the following logic:
+    - If the contact is already Unsubscribed on the target list and `Force == false`, no change is made.
+    - If `Force == true`, the contact will be set to Subscribed (`status: "1"`) regardless of prior Unsubscribed state.
+    - If there is no existing membership, a new Subscribed membership is created.
+  - Example:
+
+```go
+out, resp, err := contactsSvc.UpdateListStatusManaged(ctx, &contacts.UpdateListStatusHelperRequest{
+    ContactList: &contacts.ContactList{Contact: contactID, List: listID, Status: "1"},
+    Force:       false, // set to true to force subscription even if previously unsubscribed
+})
+```
+
+- `EnsureSubscribedToList(ctx context.Context, contactID, listID string, force bool)`
+  - Convenience wrapper that constructs the helper request (defaults to `status: "1"`).
+  - Example:
+
+```go
+out, resp, err := contactsSvc.EnsureSubscribedToList(ctx, contactID, listID, false)
+```
+
+Usage scenarios and behavior
+
+```go
+// 1) No existing membership -> subscribes (POST /contactLists, status: "1")
+_, resp, err := contactsSvc.EnsureSubscribedToList(ctx, "c1", "l1", false)
+
+// 2) Already unsubscribed and force=false -> no-op (only GET); out == nil
+_, resp, err = contactsSvc.EnsureSubscribedToList(ctx, "c2", "l2", false)
+
+// 3) Already unsubscribed and force=true -> re-subscribe (POST)
+_, resp, err = contactsSvc.EnsureSubscribedToList(ctx, "c2", "l2", true)
+
+// 4) Already subscribed -> no-op (only GET); out == nil
+_, resp, err = contactsSvc.EnsureSubscribedToList(ctx, "c3", "l3", true)
+```
+
+Notes
+
+- When the helper decides no change is needed (no-op), it returns `out == nil` and the `resp` from the prior GET call so you can still inspect HTTP details.
+- `GetContactLists` returns a typed `*ContactListsResponse`. Use `ContactListsOrEmpty()` to avoid nil checks when iterating:
+
+```go
+lists, _, _ := contactsSvc.GetContactLists(ctx, contactID)
+for _, cl := range lists.ContactListsOrEmpty() {
+    // cl.List, cl.Status, cl.UnsubReason, etc.
+}
+```
+
 ### Examples
 
 - See `examples/contact_create_with_tags` for a runnable example that demonstrates `MapToContact`, creating a contact, and attaching tags. The example is build-tagged with `//go:build examples` so it won't be included in normal test runs.

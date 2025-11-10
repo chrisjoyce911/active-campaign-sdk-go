@@ -52,7 +52,7 @@ type ContactsService interface {
 	// Bounce logs, goals, lists, logs, deals, geo, notes, organization, tracking
 	GetContactBounceLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactGoals(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
-	GetContactLists(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactLists(ctx context.Context, id string) (*ContactListsResponse, *client.APIResponse, error)
 	GetContactLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactDealList(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactDeals(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
@@ -85,4 +85,15 @@ type ContactsService interface {
 	GetFieldGroup(ctx context.Context, id string) (*FieldGroupResponse, *client.APIResponse, error)
 	UpdateFieldGroup(ctx context.Context, id string, req interface{}) (*client.APIResponse, error)
 	DeleteFieldGroup(ctx context.Context, id string) (*client.APIResponse, error)
+
+	// UpdateListStatusManaged helps manage list membership with an optional Force flag.
+	// When Force is false, the contact will only be subscribed (status "1") if they are
+	// not already explicitly Unsubscribed (status "2"). When Force is true, the contact
+	// will be set to Subscribed (status "1") regardless of prior Unsubscribed state.
+	UpdateListStatusManaged(ctx context.Context, req *UpdateListStatusHelperRequest) (*UpdateContactListStatusResponse, *client.APIResponse, error)
+
+	// EnsureSubscribedToList is a convenience wrapper that subscribes a contact
+	// to the given list using UpdateListStatusManaged. When force is true, the
+	// subscription will proceed even if the contact previously unsubscribed.
+	EnsureSubscribedToList(ctx context.Context, contactID, listID string, force bool) (*UpdateContactListStatusResponse, *client.APIResponse, error)
 }
