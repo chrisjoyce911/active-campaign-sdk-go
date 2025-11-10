@@ -23,12 +23,10 @@ import (
 //	ctx: context for cancellation/timeouts
 //	id: contact id
 //
-// Returns:
-//
-//	(interface{}, *client.APIResponse, error)
-func (s *RealService) GetContactLists(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
-	var out interface{}
+// Returns a typed response wrapping the array under "contactLists".
+func (s *RealService) GetContactLists(ctx context.Context, id string) (*ContactListsResponse, *client.APIResponse, error) {
+	out := &ContactListsResponse{}
 	path := "contacts/" + id + "/contactLists"
-	apiResp, err := s.client.Do(ctx, http.MethodGet, path, nil, &out)
+	apiResp, err := s.client.Do(ctx, http.MethodGet, path, nil, out)
 	return out, apiResp, err
 }

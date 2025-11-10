@@ -127,19 +127,47 @@ type ContactData struct {
 
 // ContactList represents membership info for a contact on a list
 type ContactList struct {
-	Contact   string            `json:"contact,omitempty"`
-	List      string            `json:"list,omitempty"`
-	Form      *string           `json:"form,omitempty"`
-	SeriesID  string            `json:"seriesid,omitempty"`
-	SDate     string            `json:"sdate,omitempty"`
-	UDate     *string           `json:"udate,omitempty"`
-	Status    string            `json:"status,omitempty"`
-	Responder string            `json:"responder,omitempty"`
-	Sync      string            `json:"sync,omitempty"`
-	Links     map[string]string `json:"links,omitempty"`
-	ID        string            `json:"id,omitempty"`
-	FirstName string            `json:"first_name,omitempty"`
-	LastName  string            `json:"last_name,omitempty"`
+	Contact   string  `json:"contact,omitempty"`
+	List      string  `json:"list,omitempty"`
+	Form      *string `json:"form,omitempty"`
+	SeriesID  string  `json:"seriesid,omitempty"`
+	SDate     string  `json:"sdate,omitempty"`
+	UDate     *string `json:"udate,omitempty"`
+	Status    string  `json:"status,omitempty"`
+	Responder string  `json:"responder,omitempty"`
+	Sync      string  `json:"sync,omitempty"`
+	// Additional fields commonly returned by the API on contact list membership
+	UnsubReason           string            `json:"unsubreason,omitempty"`
+	Campaign              *string           `json:"campaign,omitempty"`
+	Message               *string           `json:"message,omitempty"`
+	FirstName             string            `json:"first_name,omitempty"`
+	LastName              string            `json:"last_name,omitempty"`
+	Ip4Sub                string            `json:"ip4Sub,omitempty"`
+	SourceID              string            `json:"sourceid,omitempty"`
+	AutoSyncLog           *string           `json:"autosyncLog,omitempty"`
+	Ip4Last               string            `json:"ip4_last,omitempty"`
+	Ip4Unsub              string            `json:"ip4Unsub,omitempty"`
+	CreatedTimestamp      string            `json:"created_timestamp,omitempty"`
+	UpdatedTimestamp      string            `json:"updated_timestamp,omitempty"`
+	CreatedBy             *string           `json:"created_by,omitempty"`
+	UpdatedBy             *string           `json:"updated_by,omitempty"`
+	UnsubscribeAutomation *string           `json:"unsubscribeAutomation,omitempty"`
+	Links                 map[string]string `json:"links,omitempty"`
+	ID                    string            `json:"id,omitempty"`
+	Automation            *string           `json:"automation,omitempty"`
+}
+
+// ContactListsResponse is returned from GET /contacts/{id}/contactLists
+type ContactListsResponse struct {
+	ContactLists *[]ContactList `json:"contactLists"`
+}
+
+// Accessor helper to avoid nil checks
+func (r *ContactListsResponse) ContactListsOrEmpty() []ContactList {
+	if r == nil || r.ContactLists == nil {
+		return []ContactList{}
+	}
+	return *r.ContactLists
 }
 
 // FieldValue represents a custom field value for a contact
