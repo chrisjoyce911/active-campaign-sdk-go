@@ -36,18 +36,43 @@ jobs:
       - name: Install JUnit reporter (go-junit-report)
         run: go install github.com/jstemmer/go-junit-report/v2@latest
 
-      - name: Run tests and generate JUnit + coverage
+      - name: Run tests per group and generate JUnit + flagged coverage
+        shell: bash
         run: |
-          mkdir -p test-results
-          # Capture test output and coverage; convert to JUnit XML
-          go test ./... -v -coverprofile=coverage.out 2>&1 | tee test-results/gotest.out
+          set -euo pipefail
+          mkdir -p test-results coverage
+
+          run_group() {
+            local name=$1; shift
+            local pkgs=("$@")
+            # Resolve packages; skip if none
+            local list_pkgs
+            if ! list_pkgs=$(go list "${pkgs[@]}" 2>/dev/null); then
+              echo "Skipping $name: no packages" | tee -a test-results/gotest.out
+              return 0
+            fi
+            echo "Running $name tests: $list_pkgs" | tee -a test-results/gotest.out
+            go test $list_pkgs -v -coverprofile="coverage/coverage-${name}.out" 2>&1 | tee -a test-results/gotest.out
+          }
+
+          # Groups aligned to flags
+          run_group client ./client/...
+          run_group services ./services/...
+          run_group examples ./examples/...
+          run_group cmd ./cmd/...
+          run_group internal ./internal/...
+          run_group legacy ./legacy/...
+          # Root packages (top-level only)
+          run_group root ./
+
+          # Convert accumulated output to JUnit XML
           cat test-results/gotest.out | go-junit-report -set-exit-code > test-results/junit.xml
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage.out
+          path: coverage/
 
       - name: Upload JUnit test results artifact
         uses: actions/upload-artifact@v4
@@ -62,11 +87,59 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: test-results/junit.xml
 
-      - name: Upload coverage to Codecov
+      # Upload flagged coverages individually (one-to-one mapping)
+      - name: Upload client coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: coverage.out
-          # For public repos CODECOV_TOKEN is optional; set secrets.CODECOV_TOKEN for private repos
+          files: coverage/coverage-client.out
+          flags: client
           token: ${{ secrets.CODECOV_TOKEN }}
-          # Fail the job if upload fails (optional - set to false to avoid failing CI on upload issues)
+          fail_ci_if_error: true
+
+      - name: Upload services coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/coverage-services.out
+          flags: services
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Upload examples coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/coverage-examples.out
+          flags: examples
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Upload cmd coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/coverage-cmd.out
+          flags: cmd
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Upload internal coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/coverage-internal.out
+          flags: internal
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Upload legacy coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/coverage-legacy.out
+          flags: legacy
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Upload root coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/coverage-root.out
+          flags: root
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
