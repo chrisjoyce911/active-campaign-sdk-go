@@ -18,10 +18,11 @@ func main() {
 		envEmail = os.Getenv("CONTACT_EMAIL")
 	)
 
-	url := flag.String("url", envURL, "ActiveCampaign base URL")
-	token := flag.String("token", envToken, "ActiveCampaign API token")
-	email := flag.String("email", envEmail, "Contact email to search for")
-	flag.Parse()
+	fs := flag.NewFlagSet("contacts_search_contact", flag.ExitOnError)
+	url := fs.String("url", envURL, "ActiveCampaign base URL")
+	token := fs.String("token", envToken, "ActiveCampaign API token")
+	email := fs.String("email", envEmail, "Contact email to search for")
+	fs.Parse(os.Args[1:])
 
 	if *url == "" || *token == "" || *email == "" {
 		fmt.Fprintln(os.Stderr, "Please provide ActiveCampaign credentials and CONTACT_EMAIL via flags or environment variables")

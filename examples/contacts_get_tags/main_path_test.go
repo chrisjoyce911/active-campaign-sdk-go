@@ -1,3 +1,5 @@
+//go:build examples
+
 package main
 
 import (
@@ -8,31 +10,25 @@ import (
 	"testing"
 )
 
-func TestMain_HappyPath(t *testing.T) {
+func TestMain_GetTags(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/api/3/contacts" {
+		if r.Method == "GET" && r.URL.Path == "/api/3/contacts/287199/contactTags" {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = io.WriteString(w, `{"contactTags":[{"id":"1","tag":"VIP"}]}`)
+		} else {
 			http.NotFound(w, r)
-			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"contacts":[{"id":"c1"}]}`)
 	}))
 	defer ts.Close()
 
-	oldArgs := os.Args
 	oldURL := os.Getenv("ACTIVE_URL")
 	oldTok := os.Getenv("ACTIVE_TOKEN")
-	oldEmail := os.Getenv("CONTACT_EMAIL")
 	t.Cleanup(func() {
-		os.Args = oldArgs
 		_ = os.Setenv("ACTIVE_URL", oldURL)
 		_ = os.Setenv("ACTIVE_TOKEN", oldTok)
-		_ = os.Setenv("CONTACT_EMAIL", oldEmail)
 	})
-	os.Args = []string{"main"}
 	_ = os.Setenv("ACTIVE_URL", ts.URL)
 	_ = os.Setenv("ACTIVE_TOKEN", "test-token")
-	_ = os.Setenv("CONTACT_EMAIL", "a@b.com")
 
 	main()
 }

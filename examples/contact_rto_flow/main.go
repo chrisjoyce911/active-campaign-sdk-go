@@ -20,8 +20,9 @@ func main() {
 	_ = godotenv.Load()
 
 	// Flags
-	apply := flag.Bool("apply", false, "If set, perform mutating operations (create/update/list/tag). Otherwise runs in dry-run mode")
-	flag.Parse()
+	fs := flag.NewFlagSet("contact_rto_flow", flag.ExitOnError)
+	apply := fs.Bool("apply", false, "If set, perform mutating operations (create/update/list/tag). Otherwise runs in dry-run mode")
+	fs.Parse(os.Args[1:])
 
 	// Load env vars
 	baseURL := env("ACTIVE_URL")

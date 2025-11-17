@@ -33,16 +33,19 @@ func TestMain_CreateAndDeleteList(t *testing.T) {
 	}))
 	defer ts.Close()
 
+	oldArgs := os.Args
 	oldURL := os.Getenv("ACTIVE_URL")
 	oldTok := os.Getenv("ACTIVE_TOKEN")
 	oldCID := os.Getenv("ACTIVE_CONTACTID")
 	oldSafe := os.Getenv("LISTS_SAFE")
 	t.Cleanup(func() {
+		os.Args = oldArgs
 		_ = os.Setenv("ACTIVE_URL", oldURL)
 		_ = os.Setenv("ACTIVE_TOKEN", oldTok)
 		_ = os.Setenv("ACTIVE_CONTACTID", oldCID)
 		_ = os.Setenv("LISTS_SAFE", oldSafe)
 	})
+	os.Args = []string{"main"}
 	_ = os.Setenv("ACTIVE_URL", ts.URL)
 	_ = os.Setenv("ACTIVE_TOKEN", "test-token")
 	_ = os.Setenv("ACTIVE_CONTACTID", "c1")
@@ -53,4 +56,43 @@ func TestMain_CreateAndDeleteList(t *testing.T) {
 	if createdID != "L1" {
 		t.Fatalf("expected delete of L1, got %s", createdID)
 	}
+}
+
+func TestMain_NoDelete(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && r.URL.Path == "/api/3/lists":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = io.WriteString(w, `{"list":{"id":"L1","name":"Example List"}}`)
+			return
+		case r.Method == http.MethodPost && r.URL.Path == "/api/3/contactLists":
+			// best-effort subscribe; return 200 OK JSON
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = io.WriteString(w, `{"contactList":{"id":"cl1"}}`)
+			return
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer ts.Close()
+
+	oldArgs := os.Args
+	oldURL := os.Getenv("ACTIVE_URL")
+	oldTok := os.Getenv("ACTIVE_TOKEN")
+	oldCID := os.Getenv("ACTIVE_CONTACTID")
+	oldSafe := os.Getenv("LISTS_SAFE")
+	t.Cleanup(func() {
+		os.Args = oldArgs
+		_ = os.Setenv("ACTIVE_URL", oldURL)
+		_ = os.Setenv("ACTIVE_TOKEN", oldTok)
+		_ = os.Setenv("ACTIVE_CONTACTID", oldCID)
+		_ = os.Setenv("LISTS_SAFE", oldSafe)
+	})
+	os.Args = []string{"main", "-delete=false"}
+	_ = os.Setenv("ACTIVE_URL", ts.URL)
+	_ = os.Setenv("ACTIVE_TOKEN", "test-token")
+	_ = os.Setenv("ACTIVE_CONTACTID", "c1")
+	_ = os.Setenv("LISTS_SAFE", "true")
+
+	main()
 }

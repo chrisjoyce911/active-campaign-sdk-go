@@ -30,8 +30,9 @@ func main() {
 		fmt.Println("WARNING: LISTS_SAFE=false, example will create & potentially modify data")
 	}
 
-	deleteAfter := flag.Bool("delete", defaultDelete, "delete the created list after running the example")
-	flag.Parse()
+	fs := flag.NewFlagSet("lists_create_list", flag.ExitOnError)
+	deleteAfter := fs.Bool("delete", defaultDelete, "delete the created list after running the example")
+	fs.Parse(os.Args[1:])
 
 	c, err := client.NewCoreClient(activeURL, token)
 	if err != nil {

@@ -31,14 +31,17 @@ func TestMain_HappyPath(t *testing.T) {
 	}))
 	defer ts.Close()
 
+	oldArgs := os.Args
 	oldURL := os.Getenv("ACTIVE_URL")
 	oldTok := os.Getenv("ACTIVE_TOKEN")
 	oldEmail := os.Getenv("ACTIVE_EMAIL")
 	t.Cleanup(func() {
+		os.Args = oldArgs
 		_ = os.Setenv("ACTIVE_URL", oldURL)
 		_ = os.Setenv("ACTIVE_TOKEN", oldTok)
 		_ = os.Setenv("ACTIVE_EMAIL", oldEmail)
 	})
+	os.Args = []string{"main"}
 	_ = os.Setenv("ACTIVE_URL", ts.URL)
 	_ = os.Setenv("ACTIVE_TOKEN", "test-token")
 	_ = os.Setenv("ACTIVE_EMAIL", "a@b.com")

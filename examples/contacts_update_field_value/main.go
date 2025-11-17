@@ -17,8 +17,9 @@ func env(k string) string { return strings.TrimSpace(os.Getenv(k)) }
 
 func main() {
 	_ = godotenv.Load()
-	apply := flag.Bool("apply", false, "perform mutating calls against API")
-	flag.Parse()
+	fs := flag.NewFlagSet("contacts_update_field_value", flag.ExitOnError)
+	apply := fs.Bool("apply", false, "perform mutating calls against API")
+	fs.Parse(os.Args[1:])
 
 	base := env("ACTIVE_URL")
 	token := env("ACTIVE_TOKEN")
