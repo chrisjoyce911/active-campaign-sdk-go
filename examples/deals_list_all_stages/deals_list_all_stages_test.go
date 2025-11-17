@@ -1,6 +1,3 @@
-//go:build example_unit
-// +build example_unit
-
 package main
 
 import (

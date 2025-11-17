@@ -100,3 +100,53 @@ func TestListDealsAll_PropagatesError(t *testing.T) {
 		t.Fatalf("unexpected apiResp: %+v", apiResp)
 	}
 }
+
+func TestListDealsAll_DefaultLimitAndInvalidLimit(t *testing.T) {
+	// No limit provided -> default 100, invalid limit -> default 100
+	sawLimit100 := 0
+	rt := roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		v, _ := url.ParseQuery(r.URL.RawQuery)
+		if v.Get("limit") == "100" {
+			sawLimit100++
+		}
+		// Return a single result and meta.total=1 so helper stops
+		return resp(200, `{"deals":[{"id":"z"}],"meta":{"total":1}}`), nil
+	})
+	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", Transport: rt}
+	svc := NewRealServiceFromDoer(hd)
+
+	// case 1: no limit in opts
+	_, _, err := ListDealsAll(context.Background(), svc, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	// case 2: invalid limit
+	_, _, err = ListDealsAll(context.Background(), svc, map[string]string{"limit": "bad"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if sawLimit100 < 2 {
+		t.Fatalf("expected to see limit=100 at least twice, saw %d", sawLimit100)
+	}
+}
+
+func TestListDealsAll_RespectsStartingOffset(t *testing.T) {
+	firstOffset := ""
+	rt := roundTripperFunc(func(r *http.Request) (*http.Response, error) {
+		v, _ := url.ParseQuery(r.URL.RawQuery)
+		if firstOffset == "" {
+			firstOffset = v.Get("offset")
+		}
+		// Stop in one page using meta.total
+		return resp(200, `{"deals":[{"id":"x"}],"meta":{"total":1}}`), nil
+	})
+	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", Transport: rt}
+	svc := NewRealServiceFromDoer(hd)
+	_, _, err := ListDealsAll(context.Background(), svc, map[string]string{"offset": "10"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if firstOffset != "10" {
+		t.Fatalf("expected first offset=10, got %s", firstOffset)
+	}
+}
