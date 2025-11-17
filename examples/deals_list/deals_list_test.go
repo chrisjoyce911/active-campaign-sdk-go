@@ -12,17 +12,17 @@ import (
 type fakeDealsSvc struct{}
 
 func (f *fakeDealsSvc) ListDeals(ctx context.Context, opts map[string]string) (*deals.ListDealsResponse, *client.APIResponse, error) {
-	// Simulate two pages when limit=1, using offset detection
-	limit := opts["limit"]
 	offset := opts["offset"]
-	if limit == "1" && offset == "0" {
-		return &deals.ListDealsResponse{Deals: []deals.Deal{{ID: "1", Title: "A", Group: "2", Stage: "7"}}, Meta: &deals.DealsListMeta{Total: 2}}, &client.APIResponse{StatusCode: 200}, nil
+	if offset == "0" {
+		return &deals.ListDealsResponse{Deals: []deals.Deal{{ID: "1", Title: "A", Group: "2", Stage: "7"}, {ID: "2", Title: "B", Group: "2", Stage: "7"}}, Meta: &deals.DealsListMeta{Total: 2}}, &client.APIResponse{StatusCode: 200}, nil
 	}
-	return &deals.ListDealsResponse{Deals: []deals.Deal{{ID: "2", Title: "B", Group: "2", Stage: "7"}}, Meta: &deals.DealsListMeta{Total: 2}}, &client.APIResponse{StatusCode: 200}, nil
+	return &deals.ListDealsResponse{Deals: []deals.Deal{}, Meta: &deals.DealsListMeta{Total: 2}}, &client.APIResponse{StatusCode: 200}, nil
 }
 
 // Stub unused interface methods
-func (f *fakeDealsSvc) CreateDeal(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) { return nil, nil, nil }
+func (f *fakeDealsSvc) CreateDeal(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+	return nil, nil, nil
+}
 func (f *fakeDealsSvc) CreateDealNote(ctx context.Context, dealID string, req interface{}) (interface{}, *client.APIResponse, error) {
 	return nil, nil, nil
 }
@@ -44,7 +44,9 @@ func (f *fakeDealsSvc) UpdateDealNote(ctx context.Context, dealID, noteID string
 func (f *fakeDealsSvc) BulkUpdateDealOwners(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
 	return nil, nil, nil
 }
-func (f *fakeDealsSvc) DeleteDeal(ctx context.Context, id string) (*client.APIResponse, error) { return nil, nil }
+func (f *fakeDealsSvc) DeleteDeal(ctx context.Context, id string) (*client.APIResponse, error) {
+	return nil, nil
+}
 
 func TestRun_PrintsDealsAcrossPages(t *testing.T) {
 	var buf bytes.Buffer
