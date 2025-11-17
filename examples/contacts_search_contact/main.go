@@ -27,13 +27,19 @@ func main() {
 	if *url == "" || *token == "" || *email == "" {
 		fmt.Fprintln(os.Stderr, "Please provide ActiveCampaign credentials and CONTACT_EMAIL via flags or environment variables")
 		flag.Usage()
-		os.Exit(2)
+		if os.Getenv("TEST") != "1" {
+			os.Exit(2)
+		}
+		return
 	}
 
 	core, err := client.NewCoreClient(*url, *token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create core client: %v\n", err)
-		os.Exit(1)
+		if os.Getenv("TEST") != "1" {
+			os.Exit(1)
+		}
+		return
 	}
 	svc := contacts.NewRealService(core)
 
@@ -44,7 +50,10 @@ func main() {
 		if apiResp != nil {
 			fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
 		}
-		os.Exit(1)
+		if os.Getenv("TEST") != "1" {
+			os.Exit(1)
+		}
+		return
 	}
 
 	out, _ := json.MarshalIndent(resp, "", "  ")

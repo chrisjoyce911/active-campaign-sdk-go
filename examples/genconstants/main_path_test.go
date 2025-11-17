@@ -37,3 +37,22 @@ func TestMain_Generate(t *testing.T) {
 
 	main()
 }
+
+func TestMain_Error(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "server error", 500)
+	}))
+	defer ts.Close()
+
+	oldURL := os.Getenv("ACTIVE_URL")
+	oldTok := os.Getenv("ACTIVE_TOKEN")
+	t.Cleanup(func() {
+		_ = os.Setenv("ACTIVE_URL", oldURL)
+		_ = os.Setenv("ACTIVE_TOKEN", oldTok)
+	})
+	_ = os.Setenv("ACTIVE_URL", ts.URL)
+	_ = os.Setenv("ACTIVE_TOKEN", "test-token")
+
+	main()
+}
+

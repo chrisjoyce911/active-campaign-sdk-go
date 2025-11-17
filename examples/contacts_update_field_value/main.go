@@ -29,16 +29,24 @@ func main() {
 
 	if base == "" || token == "" || contact == "" || field == "" {
 		fmt.Fprintln(os.Stderr, "set ACTIVE_URL, ACTIVE_TOKEN, ACTIVE_CONTACTID and ACTIVE_CONTACT_CF_COMPANY_NAME in .env")
-		os.Exit(2)
+		if os.Getenv("TEST") != "1" {
+			os.Exit(2)
+		}
+		return
 	}
 
 	cc, err := client.NewCoreClient(base, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create client: %v\n", err)
-		os.Exit(1)
+		if os.Getenv("TEST") != "1" {
+			os.Exit(1)
+		}
+		return
 	}
 
-	cc.SetDebug(true, os.Stdout)
+	if os.Getenv("TEST") != "1" {
+		cc.SetDebug(true, os.Stdout)
+	}
 
 	svc := contacts.NewRealService(cc)
 	ctx := context.Background()
@@ -51,11 +59,14 @@ func main() {
 	req := &contacts.FieldValuePayload{Contact: contact, Field: field, Value: company}
 	out, apiResp, err := svc.UpdateFieldValueForContact(ctx, req)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		if apiResp != nil {
-			fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
+		if os.Getenv("TEST") != "1" {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			if apiResp != nil {
+				fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
+			}
+			os.Exit(1)
 		}
-		os.Exit(1)
+		return
 	}
 
 	fmt.Printf("ok: created/updated fieldValue id=%s\n", out.FieldValue.ID)

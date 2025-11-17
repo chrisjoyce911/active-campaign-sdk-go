@@ -30,7 +30,9 @@ func Run(ctx context.Context, svc deals.DealsService, out io.Writer) error {
 }
 
 func main() {
-	_ = godotenv.Load()
+	if os.Getenv("ACTIVE_URL") == "" {
+		_ = godotenv.Load()
+	}
 
 	base := os.Getenv("ACTIVE_URL")
 	token := os.Getenv("ACTIVE_TOKEN")
