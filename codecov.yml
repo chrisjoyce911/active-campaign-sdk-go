@@ -47,3 +47,77 @@ component_management:
         - "*.go"
 
 # Codecov already ignores test files; keep everything else to enable components
+
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: auto
+        threshold: 1%
+      - type: patch
+        target: 90%
+  individual_flags:
+    - name: client
+      paths:
+        - client/**
+      statuses:
+        - type: project
+          target: 80%
+          threshold: 1%
+        - type: patch
+          target: 80%
+    - name: services
+      paths:
+        - services/**
+      statuses:
+        - type: project
+          target: 80%
+          threshold: 1%
+        - type: patch
+          target: 80%
+    - name: examples
+      paths:
+        - examples/**
+      statuses:
+        - type: project
+          target: 60%
+          threshold: 1%
+        - type: patch
+          target: 80%
+    - name: cmd
+      paths:
+        - cmd/**
+      statuses:
+        - type: project
+          target: 70%
+          threshold: 1%
+        - type: patch
+          target: 80%
+    - name: internal
+      paths:
+        - internal/**
+      statuses:
+        - type: project
+          target: 70%
+          threshold: 1%
+        - type: patch
+          target: 80%
+    - name: legacy
+      paths:
+        - legacy/**
+      statuses:
+        - type: project
+          target: 60%
+          threshold: 1%
+        - type: patch
+          target: 80%
+    - name: root
+      paths:
+        - "*.go"
+      statuses:
+        - type: project
+          target: 70%
+          threshold: 1%
+        - type: patch
+          target: 80%
