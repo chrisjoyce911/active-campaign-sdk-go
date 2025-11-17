@@ -1,13 +1,49 @@
 codecov:
   require_ci_to_pass: true
 
+comment:
+  layout: "header, diff, flags, components"
+
 coverage:
   status:
     project:
       default:
         target: 80%
 
-ignore:
-  - "examples/**"
-  - "**/examples/**"
-  - "**/*_test.go"
+# Components let us slice coverage by repo areas without multiple uploads
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+  individual_components:
+    - component_id: component_client
+      name: client
+      paths:
+        - client/**
+    - component_id: component_services
+      name: services
+      paths:
+        - services/**
+    - component_id: component_examples
+      name: examples
+      paths:
+        - examples/**
+    - component_id: component_cmd
+      name: cmd
+      paths:
+        - cmd/**
+    - component_id: component_internal
+      name: internal
+      paths:
+        - internal/**
+    - component_id: component_legacy
+      name: legacy
+      paths:
+        - legacy/**
+    - component_id: component_root
+      name: root
+      paths:
+        - "*.go"
+
+# Codecov already ignores test files; keep everything else to enable components
