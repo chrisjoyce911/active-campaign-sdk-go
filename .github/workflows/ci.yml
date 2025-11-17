@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ["1.19"]
+        go-version: ["1.24.x"]
 
     steps:
       - uses: actions/checkout@v4
@@ -33,13 +33,15 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Install test tools (gotestsum)
-        run: go install gotest.tools/gotestsum@latest
+      - name: Install JUnit reporter (go-junit-report)
+        run: go install github.com/jstemmer/go-junit-report/v2@latest
 
       - name: Run tests and generate JUnit + coverage
         run: |
           mkdir -p test-results
-          gotestsum --junitfile test-results/junit.xml -- -coverprofile=coverage.out ./...
+          # Capture test output and coverage; convert to JUnit XML
+          go test ./... -v -coverprofile=coverage.out 2>&1 | tee test-results/gotest.out
+          cat test-results/gotest.out | go-junit-report -set-exit-code > test-results/junit.xml
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4

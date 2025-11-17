@@ -1,6 +1,6 @@
 module github.com/chrisjoyce911/active-campaign-sdk-go
 
-go 1.19
+go 1.24
 
 require (
 	github.com/joho/godotenv v1.5.1
