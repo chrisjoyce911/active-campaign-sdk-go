@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -15,6 +14,8 @@ import (
 )
 
 func env(k string) string { return strings.TrimSpace(os.Getenv(k)) }
+
+var exitFn = os.Exit
 
 func Run(ctx context.Context, svc *contacts.RealService, email, first, last, phone, company, rto, listID, tagID, campaignTagID, cfCompany, cfRTO string, apply bool) error {
 	// updateCustomField centralizes the example-level dry-run/logging and calls the SDK helper
@@ -142,7 +143,14 @@ func main() {
 	// Flags
 	fs := flag.NewFlagSet("contact_rto_flow", flag.ExitOnError)
 	apply := fs.Bool("apply", false, "If set, perform mutating operations (create/update/list/tag). Otherwise runs in dry-run mode")
-	fs.Parse(os.Args[1:])
+	args := []string{}
+	for _, a := range os.Args[1:] {
+		if strings.HasPrefix(a, "-test.") { // ignore testing framework flags when invoked from `go test`
+			continue
+		}
+		args = append(args, a)
+	}
+	_ = fs.Parse(args)
 
 	// Load env vars
 	baseURL := env("ACTIVE_URL")
@@ -163,13 +171,19 @@ func main() {
 
 	if baseURL == "" || token == "" || email == "" {
 		fmt.Fprintln(os.Stderr, "ACTIVE_URL, ACTIVE_TOKEN and CONTACT_EMAIL must be set in environment")
-		os.Exit(2)
+		if os.Getenv("TEST") != "1" {
+			exitFn(2)
+		}
+		return
 	}
 
 	core, err := client.NewCoreClient(baseURL, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create client: %v\n", err)
-		os.Exit(1)
+		if os.Getenv("TEST") != "1" {
+			exitFn(1)
+		}
+		return
 	}
 
 	// Optional debug: set CLIENT_DEBUG=1 to enable outgoing request debug
@@ -182,8 +196,9 @@ func main() {
 	ctx := context.Background()
 
 	if err := Run(ctx, contactsSvc, email, first, last, phone, company, rto, listID, tagID, campaignTagID, cfCompany, cfRTO, *apply); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
 		if os.Getenv("TEST") != "1" {
-			log.Fatal(err)
+			exitFn(1)
 		}
 		return
 	}

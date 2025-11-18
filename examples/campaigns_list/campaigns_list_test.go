@@ -8,47 +8,14 @@ import (
 	"testing"
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
+	campaignsmock "github.com/chrisjoyce911/active-campaign-sdk-go/mocks/campaigns"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/services/campaigns"
 )
 
-type fakeCampaignsSvc struct {
-	resp *campaigns.ListCampaignsResponse
-	api  *client.APIResponse
-	err  error
-}
-
-func (f *fakeCampaignsSvc) ListCampaigns(ctx context.Context, opts interface{}) (*campaigns.ListCampaignsResponse, *client.APIResponse, error) {
-	return f.resp, f.api, f.err
-}
-
-// The rest of the campaigns.CampaignsService interface methods are not used in this example.
-// Provide no-op implementations to satisfy the interface.
-func (f *fakeCampaignsSvc) CreateCampaign(ctx context.Context, req *campaigns.CreateCampaignRequest) (*campaigns.Campaign, *client.APIResponse, error) {
-	return nil, nil, nil
-}
-func (f *fakeCampaignsSvc) GetCampaign(ctx context.Context, id string) (*campaigns.Campaign, *client.APIResponse, error) {
-	return nil, nil, nil
-}
-func (f *fakeCampaignsSvc) GetCampaignLinks(ctx context.Context, id string) (*campaigns.CampaignLinksResponse, *client.APIResponse, error) {
-	return nil, nil, nil
-}
-func (f *fakeCampaignsSvc) CampaignLinks(ctx context.Context, id string, messageID *string) ([]campaigns.CampaignLink, *client.APIResponse, error) {
-	return nil, nil, nil
-}
-func (f *fakeCampaignsSvc) EditCampaign(ctx context.Context, id string, req *campaigns.EditCampaignRequest) (*campaigns.Campaign, *client.APIResponse, error) {
-	return nil, nil, nil
-}
-func (f *fakeCampaignsSvc) DuplicateCampaign(ctx context.Context, id string) (*campaigns.DuplicateCampaignResponse, *client.APIResponse, error) {
-	return nil, nil, nil
-}
-
 func TestRun_PrintsStatuses(t *testing.T) {
-	fake := &fakeCampaignsSvc{
-		resp: &campaigns.ListCampaignsResponse{Campaigns: []campaigns.Campaign{
-			{ID: "1", Name: "One", Status: "1"},
-			{ID: "2", Name: "Two", Status: "0"},
-		}},
-	}
+	fake := &campaignsmock.Service{ListCampaignsFunc: func(ctx context.Context, opts interface{}) (*campaigns.ListCampaignsResponse, *client.APIResponse, error) {
+		return &campaigns.ListCampaignsResponse{Campaigns: []campaigns.Campaign{{ID: "1", Name: "One", Status: "1"}, {ID: "2", Name: "Two", Status: "0"}}}, &client.APIResponse{StatusCode: 200}, nil
+	}}
 
 	var buf bytes.Buffer
 	if err := Run(context.Background(), fake, &buf); err != nil {
@@ -68,11 +35,10 @@ func TestRun_PrintsStatuses(t *testing.T) {
 }
 
 func TestRun_ErrorFromService(t *testing.T) {
-	fake := &fakeCampaignsSvc{
-		resp: nil,
-		api:  &client.APIResponse{StatusCode: 500},
-		err:  fmt.Errorf("boom"),
-	}
+	fake := &campaignsmock.Service{ListCampaignsFunc: func(ctx context.Context, opts interface{}) (*campaigns.ListCampaignsResponse, *client.APIResponse, error) {
+		return nil, &client.APIResponse{StatusCode: 500}, fmt.Errorf("boom")
+	}}
+
 	var buf bytes.Buffer
 	if err := Run(context.Background(), fake, &buf); err == nil {
 		t.Fatalf("expected error from Run")
@@ -80,11 +46,9 @@ func TestRun_ErrorFromService(t *testing.T) {
 }
 
 func TestRun_StatusParseError(t *testing.T) {
-	fake := &fakeCampaignsSvc{
-		resp: &campaigns.ListCampaignsResponse{Campaigns: []campaigns.Campaign{
-			{ID: "x", Name: "Bad", Status: "not-a-number"},
-		}},
-	}
+	fake := &campaignsmock.Service{ListCampaignsFunc: func(ctx context.Context, opts interface{}) (*campaigns.ListCampaignsResponse, *client.APIResponse, error) {
+		return &campaigns.ListCampaignsResponse{Campaigns: []campaigns.Campaign{{ID: "x", Name: "Bad", Status: "not-a-number"}}}, &client.APIResponse{StatusCode: 200}, nil
+	}}
 	var buf bytes.Buffer
 	if err := Run(context.Background(), fake, &buf); err != nil {
 		t.Fatalf("unexpected error: %v", err)
