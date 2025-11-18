@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/services/campaigns"
 	"github.com/joho/godotenv"
 )
+
+// allow tests to intercept process exit
+var exitFn = os.Exit
 
 // Run prints campaign statuses using the provided campaigns service and writer.
 func Run(ctx context.Context, svc campaigns.CampaignsService, out io.Writer) error {
@@ -37,18 +39,23 @@ func main() {
 	base := os.Getenv("ACTIVE_URL")
 	token := os.Getenv("ACTIVE_TOKEN")
 	if base == "" || token == "" {
-		log.Fatalf("ACTIVE_URL and ACTIVE_TOKEN must be set")
+		fmt.Fprintln(os.Stderr, "ACTIVE_URL and ACTIVE_TOKEN must be set")
+		exitFn(1)
+		return
 	}
 
 	core, err := client.NewCoreClient(base, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create core client: %v\n", err)
-		os.Exit(1)
+		exitFn(1)
+		return
 	}
 	svc := campaigns.NewRealService(core)
 
 	ctx := context.Background()
 	if err := Run(ctx, svc, os.Stdout); err != nil {
-		log.Fatalf("%v", err)
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		exitFn(1)
+		return
 	}
 }

@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
@@ -62,5 +64,32 @@ func TestRun_PrintsStatuses(t *testing.T) {
 	}
 	if !bytes.Contains([]byte(out), []byte("campaign 2 (Two):")) {
 		t.Fatalf("output missing campaign 2: %q", out)
+	}
+}
+
+func TestRun_ErrorFromService(t *testing.T) {
+	fake := &fakeCampaignsSvc{
+		resp: nil,
+		api:  &client.APIResponse{StatusCode: 500},
+		err:  fmt.Errorf("boom"),
+	}
+	var buf bytes.Buffer
+	if err := Run(context.Background(), fake, &buf); err == nil {
+		t.Fatalf("expected error from Run")
+	}
+}
+
+func TestRun_StatusParseError(t *testing.T) {
+	fake := &fakeCampaignsSvc{
+		resp: &campaigns.ListCampaignsResponse{Campaigns: []campaigns.Campaign{
+			{ID: "x", Name: "Bad", Status: "not-a-number"},
+		}},
+	}
+	var buf bytes.Buffer
+	if err := Run(context.Background(), fake, &buf); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(buf.String(), "status parse error") {
+		t.Fatalf("expected status parse error in output, got: %q", buf.String())
 	}
 }
