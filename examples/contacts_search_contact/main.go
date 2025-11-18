@@ -11,6 +11,8 @@ import (
 	"github.com/chrisjoyce911/active-campaign-sdk-go/services/contacts"
 )
 
+var exitFn = os.Exit
+
 func main() {
 	var (
 		envURL   = os.Getenv("ACTIVE_URL")
@@ -28,7 +30,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Please provide ActiveCampaign credentials and CONTACT_EMAIL via flags or environment variables")
 		flag.Usage()
 		if os.Getenv("TEST") != "1" {
-			os.Exit(2)
+			exitFn(2)
+			return
 		}
 		return
 	}
@@ -37,7 +40,8 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create core client: %v\n", err)
 		if os.Getenv("TEST") != "1" {
-			os.Exit(1)
+			exitFn(1)
+			return
 		}
 		return
 	}
@@ -51,7 +55,8 @@ func main() {
 			fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
 		}
 		if os.Getenv("TEST") != "1" {
-			os.Exit(1)
+			exitFn(1)
+			return
 		}
 		return
 	}

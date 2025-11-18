@@ -102,10 +102,6 @@ func main() {
 			}
 			return
 		}
-		if delResp != nil {
-			fmt.Println("Deleted list, status:", delResp.StatusCode)
-		} else {
-			fmt.Println("Deleted list")
-		}
+		fmt.Println("Deleted list")
 	}
 }

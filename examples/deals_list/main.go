@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/services/deals"
 	"github.com/joho/godotenv"
 )
+
+var exitFn = os.Exit
 
 // Run lists deals for pipeline=2 and stage=7 and prints id, title, pipeline, and stage.
 func Run(ctx context.Context, svc deals.DealsService, out io.Writer) error {
@@ -37,18 +38,23 @@ func main() {
 	base := os.Getenv("ACTIVE_URL")
 	token := os.Getenv("ACTIVE_TOKEN")
 	if base == "" || token == "" {
-		log.Fatalf("ACTIVE_URL and ACTIVE_TOKEN must be set")
+		fmt.Fprintln(os.Stderr, "ACTIVE_URL and ACTIVE_TOKEN must be set")
+		exitFn(1)
+		return
 	}
 
 	core, err := client.NewCoreClient(base, token)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create core client: %v\n", err)
-		os.Exit(1)
+		exitFn(1)
+		return
 	}
 	svc := deals.NewRealService(core)
 
 	ctx := context.Background()
 	if err := Run(ctx, svc, os.Stdout); err != nil {
-		log.Fatalf("%v", err)
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		exitFn(1)
+		return
 	}
 }

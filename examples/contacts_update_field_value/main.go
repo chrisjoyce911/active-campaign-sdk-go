@@ -15,6 +15,8 @@ import (
 
 func env(k string) string { return strings.TrimSpace(os.Getenv(k)) }
 
+var exitFn = os.Exit
+
 func main() {
 	_ = godotenv.Load()
 	fs := flag.NewFlagSet("contacts_update_field_value", flag.ExitOnError)
@@ -30,7 +32,8 @@ func main() {
 	if base == "" || token == "" || contact == "" || field == "" {
 		fmt.Fprintln(os.Stderr, "set ACTIVE_URL, ACTIVE_TOKEN, ACTIVE_CONTACTID and ACTIVE_CONTACT_CF_COMPANY_NAME in .env")
 		if os.Getenv("TEST") != "1" {
-			os.Exit(2)
+			exitFn(2)
+			return
 		}
 		return
 	}
@@ -39,7 +42,8 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create client: %v\n", err)
 		if os.Getenv("TEST") != "1" {
-			os.Exit(1)
+			exitFn(1)
+			return
 		}
 		return
 	}
@@ -64,7 +68,8 @@ func main() {
 			if apiResp != nil {
 				fmt.Fprintf(os.Stderr, "status=%d body=%s\n", apiResp.StatusCode, string(apiResp.Body))
 			}
-			os.Exit(1)
+			exitFn(1)
+			return
 		}
 		return
 	}
