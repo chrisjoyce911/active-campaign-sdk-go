@@ -157,6 +157,20 @@ type ContactList struct {
 	Automation            *string           `json:"automation,omitempty"`
 }
 
+// AddContactToListPayload contains the writable fields when subscribing a contact to a list.
+type AddContactToListPayload struct {
+	List     string `json:"list"`
+	Contact  string `json:"contact"`
+	Status   string `json:"status"`
+	SourceID string `json:"sourceid,omitempty"`
+}
+
+// AddContactToListResponse models the response from POST /contactLists.
+type AddContactToListResponse struct {
+	Contacts    []Contact    `json:"contacts"`
+	ContactList *ContactList `json:"contactList"`
+}
+
 // ContactListsResponse is returned from GET /contacts/{id}/contactLists
 type ContactListsResponse struct {
 	ContactLists *[]ContactList `json:"contactLists"`

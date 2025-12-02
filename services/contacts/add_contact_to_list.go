@@ -24,10 +24,13 @@ import (
 //
 // Returns:
 //
-//	(interface{}, *client.APIResponse, error)
-func (s *RealService) AddContactToList(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
-	var out interface{}
+//	(*AddContactToListResponse, *client.APIResponse, error)
+func (s *RealService) AddContactToList(ctx context.Context, req *AddContactToListPayload) (*AddContactToListResponse, *client.APIResponse, error) {
+	var out AddContactToListResponse
+	body := struct {
+		ContactList *AddContactToListPayload `json:"contactList"`
+	}{ContactList: req}
 	path := "contactLists"
-	apiResp, err := s.client.Do(ctx, http.MethodPost, path, req, &out)
-	return out, apiResp, err
+	apiResp, err := s.client.Do(ctx, http.MethodPost, path, body, &out)
+	return &out, apiResp, err
 }

@@ -35,7 +35,7 @@ type Service struct {
 	GetContactPlusAppendFunc               func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactTrackingLogsFunc             func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	SyncContactFunc                        func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
-	AddContactToListFunc                   func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	AddContactToListFunc                   func(ctx context.Context, req *contacts.AddContactToListPayload) (*contacts.AddContactToListResponse, *client.APIResponse, error)
 	BulkImportContactsFunc                 func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
 	GetBulkImportStatusFunc                func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	ListBulkImportStatusFunc               func(ctx context.Context, opts map[string]string) (interface{}, *client.APIResponse, error)
@@ -212,11 +212,11 @@ func (m *Service) SyncContact(ctx context.Context, req interface{}) (interface{}
 	}
 	return nil, &client.APIResponse{}, nil
 }
-func (m *Service) AddContactToList(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+func (m *Service) AddContactToList(ctx context.Context, req *contacts.AddContactToListPayload) (*contacts.AddContactToListResponse, *client.APIResponse, error) {
 	if m.AddContactToListFunc != nil {
 		return m.AddContactToListFunc(ctx, req)
 	}
-	return nil, &client.APIResponse{}, nil
+	return &contacts.AddContactToListResponse{}, &client.APIResponse{}, nil
 }
 func (m *Service) BulkImportContacts(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
 	if m.BulkImportContactsFunc != nil {

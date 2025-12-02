@@ -66,7 +66,7 @@ type ContactsService interface {
 
 	// Sync, add to list, bulk import and status
 	SyncContact(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
-	AddContactToList(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	AddContactToList(ctx context.Context, req *AddContactToListPayload) (*AddContactToListResponse, *client.APIResponse, error)
 	BulkImportContacts(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
 	GetBulkImportStatus(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	ListBulkImportStatus(ctx context.Context, opts map[string]string) (interface{}, *client.APIResponse, error)

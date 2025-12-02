@@ -93,7 +93,7 @@ func Run(ctx context.Context, svc *contacts.RealService, email, first, last, pho
 		if !apply {
 			fmt.Printf("dry-run: would add contact %s to list %s\n", contactID, listID)
 		} else {
-			req := &contacts.ContactList{Contact: contactID, List: listID, Status: "1"}
+			req := &contacts.AddContactToListPayload{Contact: contactID, List: listID, Status: "1"}
 			out, apiResp, err := svc.AddContactToList(ctx, req)
 			if err != nil {
 				return fmt.Errorf("CreateContactList error: %w (api resp: %+v)", err, apiResp)

@@ -23,14 +23,18 @@ func TestRealService_AddContactToList(t *testing.T) {
 			md := &mockDoer{Resp: &client.APIResponse{StatusCode: tt.status}, Body: tt.body}
 			svc := NewRealServiceFromDoer(md)
 
-			out, apiResp, err := svc.AddContactToList(context.Background(), map[string]interface{}{"foo": "bar"})
+			req := &AddContactToListPayload{Contact: "1", List: "2", Status: "1"}
+			out, apiResp, err := svc.AddContactToList(context.Background(), req)
 			if tt.status >= 400 {
 				// allow error path to be returned from client
-				_ = err
-			} else {
-				assert.NoError(t, err)
 				assert.Equal(t, tt.status, apiResp.StatusCode)
-				_ = out
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.status, apiResp.StatusCode)
+			if assert.NotNil(t, out) && assert.NotNil(t, out.ContactList) {
+				assert.Equal(t, "cl1", out.ContactList.ID)
 			}
 		})
 	}

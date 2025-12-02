@@ -194,9 +194,9 @@ func TestService_FunctionsMany(t *testing.T) {
 			called++
 			return nil, &client.APIResponse{StatusCode: 200}, nil
 		},
-		AddContactToListFunc: func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+		AddContactToListFunc: func(ctx context.Context, req *contacts.AddContactToListPayload) (*contacts.AddContactToListResponse, *client.APIResponse, error) {
 			called++
-			return nil, &client.APIResponse{StatusCode: 200}, nil
+			return &contacts.AddContactToListResponse{}, &client.APIResponse{StatusCode: 200}, nil
 		},
 		BulkImportContactsFunc: func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
 			called++
