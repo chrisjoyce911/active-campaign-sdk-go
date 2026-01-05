@@ -44,14 +44,14 @@ func (l *ListID) UnmarshalJSON(data []byte) error {
 		*l = ListID(str)
 		return nil
 	}
-	
+
 	// If that fails, try to unmarshal as a number
 	var num int
 	if err := json.Unmarshal(data, &num); err == nil {
 		*l = ListID(strconv.Itoa(num))
 		return nil
 	}
-	
+
 	// If both fail, return the string unmarshal error
 	return json.Unmarshal(data, &str)
 }
