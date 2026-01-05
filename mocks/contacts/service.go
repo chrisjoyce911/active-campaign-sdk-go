@@ -53,7 +53,7 @@ type Service struct {
 	UpdateListStatusManagedFunc            func(ctx context.Context, req *contacts.UpdateListStatusHelperRequest) (*contacts.UpdateContactListStatusResponse, *client.APIResponse, error)
 	EnsureSubscribedToListFunc             func(ctx context.Context, contactID, listID string, force bool) (*contacts.UpdateContactListStatusResponse, *client.APIResponse, error)
 	TagAddFunc                             func(ctx context.Context, contactID, tagID string) (*contacts.ContactTagResponse, *client.APIResponse, error)
-	TagRemoveFunc                          func(ctx context.Context, contactTagID string) (*client.APIResponse, error)
+	TagRemoveFunc                          func(ctx context.Context, contactID, tag string) (*client.APIResponse, error)
 }
 
 var _ contacts.ContactsService = (*Service)(nil)
@@ -322,9 +322,9 @@ func (m *Service) TagAdd(ctx context.Context, contactID, tagID string) (*contact
 	}
 	return &contacts.ContactTagResponse{}, &client.APIResponse{}, nil
 }
-func (m *Service) TagRemove(ctx context.Context, contactTagID string) (*client.APIResponse, error) {
+func (m *Service) TagRemove(ctx context.Context, contactID, tag string) (*client.APIResponse, error) {
 	if m.TagRemoveFunc != nil {
-		return m.TagRemoveFunc(ctx, contactTagID)
+		return m.TagRemoveFunc(ctx, contactID, tag)
 	}
 	return &client.APIResponse{}, nil
 }

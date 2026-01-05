@@ -11,7 +11,8 @@ import (
 //
 // What & Why:
 //
-//	Removes a tag association from a contact.
+//	Removes a tag association from a contact by first looking up the contact's tags
+//	to find the association ID, then deleting the association.
 //
 // Docs:
 //
@@ -20,12 +21,36 @@ import (
 // Parameters:
 //
 //	ctx: context for cancellation/timeouts
-//	contactTagID: the ID of the contactTag association to remove
+//	contactID: the ID of the contact
+//	tag: the tag name to remove
 //
 // Returns:
 //
 //	(*client.APIResponse, error)
-func (s *RealService) TagRemove(ctx context.Context, contactTagID string) (*client.APIResponse, error) {
+func (s *RealService) TagRemove(ctx context.Context, contactID, tag string) (*client.APIResponse, error) {
+	// First, get the contact's tags to find the association ID
+	tagsResp, apiResp, err := s.TagsGet(ctx, contactID)
+	if err != nil {
+		return apiResp, err
+	}
+	if tagsResp == nil || tagsResp.ContactTags == nil {
+		return apiResp, nil // No tags, nothing to remove
+	}
+
+	// Find the tag association
+	var contactTagID string
+	for _, ct := range *tagsResp.ContactTags {
+		if ct.Tag == tag {
+			contactTagID = ct.ID
+			break
+		}
+	}
+	if contactTagID == "" {
+		// Tag not found on contact
+		return &client.APIResponse{StatusCode: 404}, nil // Or return an error?
+	}
+
+	// Now delete the association
 	path := "contactTags/" + contactTagID
 	return s.client.Do(ctx, http.MethodDelete, path, nil, nil)
 }

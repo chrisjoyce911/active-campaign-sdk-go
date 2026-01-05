@@ -100,6 +100,6 @@ type ContactsService interface {
 	// TagAdd adds a tag to an existing contact.
 	TagAdd(ctx context.Context, contactID, tagID string) (*ContactTagResponse, *client.APIResponse, error)
 
-	// TagRemove removes a tag from a contact.
-	TagRemove(ctx context.Context, contactTagID string) (*client.APIResponse, error)
+	// TagRemove removes a tag from a contact by finding the association and deleting it.
+	TagRemove(ctx context.Context, contactID, tag string) (*client.APIResponse, error)
 }

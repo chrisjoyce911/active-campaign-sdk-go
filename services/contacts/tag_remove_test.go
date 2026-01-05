@@ -11,32 +11,38 @@ import (
 
 func TestRealService_TagRemove(t *testing.T) {
 	tests := []struct {
-		name         string
-		contactTagID string
-		statusCode   int
+		name       string
+		contactID  string
+		tag        string
+		tagsBody   []byte
+		statusCode int
 	}{
 		{
-			name:         "remove tag from contact",
-			contactTagID: "1",
-			statusCode:   200,
+			name:       "remove tag from contact",
+			contactID:  "1",
+			tag:        "foo",
+			tagsBody:   []byte(`{"contactTags":[{"id":"22","tag":"foo","contact":"1","cdate":"2025-01-01T00:00:00-06:00"}]}`),
+			statusCode: 200,
 		},
 		{
-			name:         "tag not found",
-			contactTagID: "999",
-			statusCode:   404,
+			name:       "tag not found",
+			contactID:  "1",
+			tag:        "bar",
+			tagsBody:   []byte(`{"contactTags":[{"id":"22","tag":"foo","contact":"1","cdate":"2025-01-01T00:00:00-06:00"}]}`),
+			statusCode: 404,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			md := &mockDoer{Resp: &client.APIResponse{StatusCode: tt.statusCode}}
+			md := &mockDoer{Resp: &client.APIResponse{StatusCode: tt.statusCode}, Body: tt.tagsBody}
 			require := require.New(t)
 			require.NotNil(md)
 
 			svc := NewRealServiceFromDoer(md)
 			require.NotNil(svc)
 
-			apiResp, err := svc.TagRemove(context.Background(), tt.contactTagID)
+			apiResp, err := svc.TagRemove(context.Background(), tt.contactID, tt.tag)
 			assert.NoError(t, err)
 			require.NotNil(apiResp)
 			assert.Equal(t, tt.statusCode, apiResp.StatusCode)
