@@ -87,7 +87,7 @@ func TestUpdateListStatus_Wrapper_Contacts(t *testing.T) {
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.api-us1.com/api/3/", Token: "tok", RespStatus: 200, RespBody: []byte(`{"contactList":{"listid":1,"status":1}}`)}
 	svc := NewRealServiceFromDoer(hd)
 
-	req := &UpdateListStatusForContactRequest{ContactList: &ContactList{Contact: "1", List: "1", Status: "1"}}
+	req := &UpdateListStatusForContactRequest{ContactList: &ContactList{Contact: "1", List: "1", Status: 1}}
 	out, apiResp, err := svc.UpdateListStatus(context.Background(), req)
 	if err != nil {
 		t.Fatalf("unexpected err: %v", err)

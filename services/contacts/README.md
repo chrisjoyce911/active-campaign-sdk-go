@@ -53,7 +53,7 @@ This package provides helpers to manage a contact’s list memberships safely:
 
 ```go
 out, resp, err := contactsSvc.UpdateListStatusManaged(ctx, &contacts.UpdateListStatusHelperRequest{
-    ContactList: &contacts.ContactList{Contact: contactID, List: listID, Status: "1"},
+    ContactList: &contacts.ContactList{Contact: contactID, List: listID, Status: 1},
     Force:       false, // set to true to force subscription even if previously unsubscribed
 })
 ```

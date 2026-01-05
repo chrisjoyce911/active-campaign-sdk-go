@@ -23,7 +23,7 @@ func Test_EnsureSubscribedToList_CreatesWhenNotPresent(t *testing.T) {
 		assert.Equal(t, http.MethodPost, hd.LastRequest.Method)
 		assert.Equal(t, "/api/3/contactLists", hd.LastRequest.URL.Path)
 		// ensure defaults to status:"1"
-		assert.Contains(t, string(hd.LastRequestBody), `"status":"1"`)
+		assert.Contains(t, string(hd.LastRequestBody), `"status":1`)
 		assert.Contains(t, string(hd.LastRequestBody), `"contact":"c1"`)
 		assert.Contains(t, string(hd.LastRequestBody), `"list":"l1"`)
 	}
@@ -31,7 +31,7 @@ func Test_EnsureSubscribedToList_CreatesWhenNotPresent(t *testing.T) {
 
 func Test_EnsureSubscribedToList_RespectsForceFlag(t *testing.T) {
 	// Existing membership is Unsubscribed ("2"). With force=false, wrapper should not POST.
-	bodyUnsub := []byte(`{"contactLists":[{"contact":"c2","list":"l2","status":"2"}]}`)
+	bodyUnsub := []byte(`{"contactLists":[{"contact":"c2","list":"l2","status":2}]}`)
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 200, RespBody: bodyUnsub}
 	svc := NewRealServiceFromDoer(hd)
 
@@ -55,13 +55,13 @@ func Test_EnsureSubscribedToList_RespectsForceFlag(t *testing.T) {
 	if assert.NotNil(t, hd2.LastRequest) {
 		assert.Equal(t, http.MethodPost, hd2.LastRequest.Method)
 		assert.Equal(t, "/api/3/contactLists", hd2.LastRequest.URL.Path)
-		assert.Contains(t, string(hd2.LastRequestBody), `"status":"1"`)
+		assert.Contains(t, string(hd2.LastRequestBody), `"status":1`)
 	}
 }
 
 func Test_EnsureSubscribedToList_NoOpWhenAlreadySubscribed(t *testing.T) {
 	// Existing membership is already Subscribed ("1"). Even with force=true, no POST should occur.
-	bodySub := []byte(`{"contactLists":[{"contact":"c3","list":"l3","status":"1"}]}`)
+	bodySub := []byte(`{"contactLists":[{"contact":"c3","list":"l3","status":1}]}`)
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 200, RespBody: bodySub}
 	svc := NewRealServiceFromDoer(hd)
 

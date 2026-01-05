@@ -11,6 +11,6 @@ import (
 // were previously Unsubscribed (status "2"). When false, Unsubscribed contacts
 // are left unchanged.
 func (s *RealService) EnsureSubscribedToList(ctx context.Context, contactID, listID string, force bool) (*UpdateContactListStatusResponse, *client.APIResponse, error) {
-	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: contactID, List: listID, Status: "1"}, Force: force}
+	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: contactID, List: listID, Status: 1}, Force: force}
 	return s.UpdateListStatusManaged(ctx, req)
 }

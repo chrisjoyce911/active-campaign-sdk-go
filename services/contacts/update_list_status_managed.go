@@ -47,13 +47,13 @@ func (s *RealService) UpdateListStatusManaged(ctx context.Context, req *UpdateLi
 
 	// Desired subscribed state (default to subscribe if unset)
 	desiredStatus := cl.Status
-	if desiredStatus == "" {
-		desiredStatus = "1"
+	if desiredStatus == 0 {
+		desiredStatus = 1
 	}
 
 	// Decision matrix
 	if existing != nil {
-		if existing.Status == "2" && !req.Force {
+		if existing.Status == 2 && !req.Force {
 			return nil, apiResp, nil // skip when unsubscribed and not forced
 		}
 		if existing.Status == desiredStatus {

@@ -133,7 +133,7 @@ type ContactList struct {
 	SeriesID  string  `json:"seriesid,omitempty"`
 	SDate     string  `json:"sdate,omitempty"`
 	UDate     *string `json:"udate,omitempty"`
-	Status    string  `json:"status,omitempty"`
+	Status    int     `json:"status,omitempty"`
 	Responder string  `json:"responder,omitempty"`
 	Sync      string  `json:"sync,omitempty"`
 	// Additional fields commonly returned by the API on contact list membership

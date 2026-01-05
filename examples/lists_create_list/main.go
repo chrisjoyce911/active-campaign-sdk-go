@@ -80,7 +80,7 @@ func main() {
 			ContactList: &contacts.ContactList{
 				Contact: contact,
 				List:    out.List.ID,
-				Status:  "1", // 1 = subscribe per API
+				Status:  1, // 1 = subscribe per API
 			},
 		}
 		if upOut, upResp, upErr := contactsSvc.UpdateListStatus(context.Background(), req); upErr != nil {
