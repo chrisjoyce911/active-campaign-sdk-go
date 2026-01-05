@@ -1,5 +1,38 @@
 package contacts
 
+import (
+	"encoding/json"
+	"strconv"
+)
+
+// SourceID represents a source ID that can be either a string or int from the API
+type SourceID string
+
+// UnmarshalJSON implements json.Unmarshaler to handle both string and number values
+func (s *SourceID) UnmarshalJSON(data []byte) error {
+	// First try to unmarshal as a string
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		*s = SourceID(str)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as a number
+	var num int
+	if err := json.Unmarshal(data, &num); err == nil {
+		*s = SourceID(strconv.Itoa(num))
+		return nil
+	}
+
+	// If both fail, return the string unmarshal error
+	return json.Unmarshal(data, &str)
+}
+
+// String returns the string representation
+func (s SourceID) String() string {
+	return string(s)
+}
+
 // Models for contacts API - these are placeholders and should match ActiveCampaign's API
 
 // CreateContactRequest is the payload when creating a contact.
@@ -143,7 +176,7 @@ type ContactList struct {
 	FirstName             string            `json:"first_name,omitempty"`
 	LastName              string            `json:"last_name,omitempty"`
 	Ip4Sub                string            `json:"ip4Sub,omitempty"`
-	SourceID              int               `json:"sourceid,omitempty"`
+	SourceID              SourceID          `json:"sourceid,omitempty"`
 	AutoSyncLog           *string           `json:"autosyncLog,omitempty"`
 	Ip4Last               string            `json:"ip4_last,omitempty"`
 	Ip4Unsub              string            `json:"ip4Unsub,omitempty"`
@@ -159,10 +192,10 @@ type ContactList struct {
 
 // AddContactToListPayload contains the writable fields when subscribing a contact to a list.
 type AddContactToListPayload struct {
-	List     string `json:"list"`
-	Contact  string `json:"contact"`
-	Status   string `json:"status"`
-	SourceID int    `json:"sourceid,omitempty"`
+	List     string   `json:"list"`
+	Contact  string   `json:"contact"`
+	Status   string   `json:"status"`
+	SourceID SourceID `json:"sourceid,omitempty"`
 }
 
 // AddContactToListResponse models the response from POST /contactLists.
