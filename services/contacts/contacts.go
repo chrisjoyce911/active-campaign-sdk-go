@@ -96,4 +96,10 @@ type ContactsService interface {
 	// to the given list using UpdateListStatusManaged. When force is true, the
 	// subscription will proceed even if the contact previously unsubscribed.
 	EnsureSubscribedToList(ctx context.Context, contactID, listID string, force bool) (*UpdateContactListStatusResponse, *client.APIResponse, error)
+
+	// TagAdd adds a tag to an existing contact.
+	TagAdd(ctx context.Context, contactID, tagID string) (*ContactTagResponse, *client.APIResponse, error)
+
+	// TagRemove removes a tag from a contact.
+	TagRemove(ctx context.Context, contactTagID string) (*client.APIResponse, error)
 }

@@ -52,6 +52,8 @@ type Service struct {
 	DeleteFieldGroupFunc                   func(ctx context.Context, id string) (*client.APIResponse, error)
 	UpdateListStatusManagedFunc            func(ctx context.Context, req *contacts.UpdateListStatusHelperRequest) (*contacts.UpdateContactListStatusResponse, *client.APIResponse, error)
 	EnsureSubscribedToListFunc             func(ctx context.Context, contactID, listID string, force bool) (*contacts.UpdateContactListStatusResponse, *client.APIResponse, error)
+	TagAddFunc                             func(ctx context.Context, contactID, tagID string) (*contacts.ContactTagResponse, *client.APIResponse, error)
+	TagRemoveFunc                          func(ctx context.Context, contactTagID string) (*client.APIResponse, error)
 }
 
 var _ contacts.ContactsService = (*Service)(nil)
@@ -313,4 +315,16 @@ func (m *Service) EnsureSubscribedToList(ctx context.Context, contactID, listID 
 		return m.EnsureSubscribedToListFunc(ctx, contactID, listID, force)
 	}
 	return &contacts.UpdateContactListStatusResponse{}, &client.APIResponse{}, nil
+}
+func (m *Service) TagAdd(ctx context.Context, contactID, tagID string) (*contacts.ContactTagResponse, *client.APIResponse, error) {
+	if m.TagAddFunc != nil {
+		return m.TagAddFunc(ctx, contactID, tagID)
+	}
+	return &contacts.ContactTagResponse{}, &client.APIResponse{}, nil
+}
+func (m *Service) TagRemove(ctx context.Context, contactTagID string) (*client.APIResponse, error) {
+	if m.TagRemoveFunc != nil {
+		return m.TagRemoveFunc(ctx, contactTagID)
+	}
+	return &client.APIResponse{}, nil
 }

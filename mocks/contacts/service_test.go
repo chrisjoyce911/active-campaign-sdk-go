@@ -98,11 +98,21 @@ func TestService_FunctionsSubset(t *testing.T) {
 			called++
 			return &contacts.UpdateContactListStatusResponse{}, &client.APIResponse{StatusCode: 200}, nil
 		},
+		TagAddFunc: func(ctx context.Context, contactID, tagID string) (*contacts.ContactTagResponse, *client.APIResponse, error) {
+			called++
+			return &contacts.ContactTagResponse{}, &client.APIResponse{StatusCode: 201}, nil
+		},
+		TagRemoveFunc: func(ctx context.Context, contactTagID string) (*client.APIResponse, error) {
+			called++
+			return &client.APIResponse{StatusCode: 200}, nil
+		},
 	}
 	_, _, _ = m.Create(context.Background(), &contacts.CreateContactRequest{})
 	_, _, _ = m.UpdateListStatusManaged(context.Background(), &contacts.UpdateListStatusHelperRequest{})
 	_, _, _ = m.EnsureSubscribedToList(context.Background(), "c1", "l1", true)
-	if called != 3 {
+	_, _, _ = m.TagAdd(context.Background(), "c1", "t1")
+	_, _ = m.TagRemove(context.Background(), "ct1")
+	if called != 5 {
 		t.Fatalf("expected 3 calls, got %d", called)
 	}
 }
@@ -249,6 +259,8 @@ func TestService_FunctionsMany(t *testing.T) {
 	_, _, _ = m.TagsGet(ctx, "c1")
 	_, _, _ = m.GetContactByEmailWithTags(ctx, "a@b.com")
 	_, _, _ = m.CreateContactWithTags(ctx, &contacts.CreateContactRequest{}, []string{"t1"})
+	_, _, _ = m.TagAdd(ctx, "c1", "t1")
+	_, _ = m.TagRemove(ctx, "ct1")
 	_, _, _ = m.GetContactBounceLogs(ctx, "c1")
 	_, _, _ = m.GetContactGoals(ctx, "c1")
 	_, _, _ = m.GetContactLists(ctx, "c1")
