@@ -39,13 +39,13 @@ func main() {
 
 	// Fetch and print contact tags for an example contact id
 	contactID := "287199"
-	out, apiResp, err := svc.GetContactTags(context.Background(), contactID)
+	out, apiResp, err := svc.TagsGet(context.Background(), contactID)
 	if err != nil {
 		// Log error and raw response body when available for debugging
 		if apiResp != nil && len(apiResp.Body) > 0 {
-			log.Printf("GetContactTags error: %v (status: %d)\nraw body:\n%s", err, apiResp.StatusCode, string(apiResp.Body))
+			log.Printf("TagsGet error: %v (status: %d)\nraw body:\n%s", err, apiResp.StatusCode, string(apiResp.Body))
 		} else {
-			log.Printf("GetContactTags error: %v (status: %v)", err, apiResp)
+			log.Printf("TagsGet error: %v (status: %v)", err, apiResp)
 		}
 		return
 	}

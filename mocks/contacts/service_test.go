@@ -47,7 +47,7 @@ func TestService_Defaults_Many(t *testing.T) {
 	_, _, _ = m.UpdateListStatus(ctx, &contacts.UpdateListStatusForContactRequest{})
 	_, _, _ = m.GetContactFieldValues(ctx, "c1")
 	_, _, _ = m.GetContactFieldValuesTyped(ctx, "c1")
-	_, _, _ = m.GetContactTags(ctx, "c1")
+	_, _, _ = m.TagsGet(ctx, "c1")
 	_, _, _ = m.GetContactByEmailWithTags(ctx, "a@b.com")
 	_, _, _ = m.CreateContactWithTags(ctx, &contacts.CreateContactRequest{}, []string{"t1"})
 	_, _, _ = m.GetContactBounceLogs(ctx, "c1")
@@ -126,7 +126,7 @@ func TestService_FunctionsMany(t *testing.T) {
 			called++
 			return &contacts.CreateContactResponse{}, &client.APIResponse{StatusCode: 200}, nil
 		},
-		GetContactTagsFunc: func(ctx context.Context, id string) (*contacts.ContactTagsResponse, *client.APIResponse, error) {
+		TagsGetFunc: func(ctx context.Context, id string) (*contacts.ContactTagsResponse, *client.APIResponse, error) {
 			called++
 			return &contacts.ContactTagsResponse{}, &client.APIResponse{StatusCode: 200}, nil
 		},
@@ -246,7 +246,7 @@ func TestService_FunctionsMany(t *testing.T) {
 	_, _, _ = m.GetContact(ctx, "c1")
 	_, _ = m.DeleteContact(ctx, "c1")
 	_, _, _ = m.UpdateContact(ctx, "c1", &contacts.CreateContactRequest{})
-	_, _, _ = m.GetContactTags(ctx, "c1")
+	_, _, _ = m.TagsGet(ctx, "c1")
 	_, _, _ = m.GetContactByEmailWithTags(ctx, "a@b.com")
 	_, _, _ = m.CreateContactWithTags(ctx, &contacts.CreateContactRequest{}, []string{"t1"})
 	_, _, _ = m.GetContactBounceLogs(ctx, "c1")

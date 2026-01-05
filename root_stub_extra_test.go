@@ -31,7 +31,7 @@ func TestContactsAPI_Placeholders_ReturnNil(t *testing.T) {
 	assert.Nil(t, resp)
 	assert.Nil(t, err)
 
-	out2, resp2, err2 := c.GetContactTags("1")
+	out2, resp2, err2 := c.TagsGet("1")
 	assert.Nil(t, out2)
 	assert.Nil(t, resp2)
 	assert.Nil(t, err2)

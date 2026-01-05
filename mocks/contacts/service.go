@@ -18,7 +18,7 @@ type Service struct {
 	GetContactFieldValuesFunc              func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactFieldValuesTypedFunc         func(ctx context.Context, id string) (*contacts.ListFieldValuesResponse, *client.APIResponse, error)
 	UpdateOrCreateFieldValueForContactFunc func(ctx context.Context, contactID, fieldIdentifier, value string) (*contacts.FieldValueResponse, *client.APIResponse, error)
-	GetContactTagsFunc                     func(ctx context.Context, id string) (*contacts.ContactTagsResponse, *client.APIResponse, error)
+	TagsGetFunc                            func(ctx context.Context, id string) (*contacts.ContactTagsResponse, *client.APIResponse, error)
 	GetContactByEmailWithTagsFunc          func(ctx context.Context, email string) (interface{}, *client.APIResponse, error)
 	CreateContactWithTagsFunc              func(ctx context.Context, req *contacts.CreateContactRequest, tagIDs []string) (*contacts.CreateContactResponse, *client.APIResponse, error)
 	GetContactBounceLogsFunc               func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
@@ -110,9 +110,9 @@ func (m *Service) UpdateOrCreateFieldValueForContact(ctx context.Context, contac
 	}
 	return &contacts.FieldValueResponse{}, &client.APIResponse{}, nil
 }
-func (m *Service) GetContactTags(ctx context.Context, id string) (*contacts.ContactTagsResponse, *client.APIResponse, error) {
-	if m.GetContactTagsFunc != nil {
-		return m.GetContactTagsFunc(ctx, id)
+func (m *Service) TagsGet(ctx context.Context, id string) (*contacts.ContactTagsResponse, *client.APIResponse, error) {
+	if m.TagsGetFunc != nil {
+		return m.TagsGetFunc(ctx, id)
 	}
 	return &contacts.ContactTagsResponse{}, &client.APIResponse{}, nil
 }

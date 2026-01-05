@@ -43,9 +43,9 @@ func main() {
 	if err != nil {
 		// Log error and raw response body when available for debugging
 		if apiResp != nil && len(apiResp.Body) > 0 {
-			log.Printf("GetContactTags error: %v (status: %d)\nraw body:\n%s", err, apiResp.StatusCode, string(apiResp.Body))
+			log.Printf("ListCustomFields error: %v (status: %d)\nraw body:\n%s", err, apiResp.StatusCode, string(apiResp.Body))
 		} else {
-			log.Printf("GetContactTags error: %v (status: %v)", err, apiResp)
+			log.Printf("ListCustomFields error: %v (status: %v)", err, apiResp)
 		}
 		return
 	}

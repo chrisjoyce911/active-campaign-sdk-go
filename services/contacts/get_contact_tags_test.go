@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRealService_GetContactTags(t *testing.T) {
+func TestRealService_TagsGet(t *testing.T) {
 	tests := []struct {
 		name string
 		id   string
@@ -28,7 +28,7 @@ func TestRealService_GetContactTags(t *testing.T) {
 			svc := NewRealServiceFromDoer(md)
 			require.NotNil(svc)
 
-			out, apiResp, err := svc.GetContactTags(context.Background(), tt.id)
+			out, apiResp, err := svc.TagsGet(context.Background(), tt.id)
 			assert.NoError(t, err)
 			require.NotNil(apiResp)
 			assert.Equal(t, 200, apiResp.StatusCode)

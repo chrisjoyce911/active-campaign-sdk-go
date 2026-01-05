@@ -37,7 +37,7 @@ type ContactsService interface {
 	// response and error.
 	UpdateOrCreateFieldValueForContact(ctx context.Context, contactID, fieldIdentifier, value string) (*FieldValueResponse, *client.APIResponse, error)
 	// Get contact tags
-	GetContactTags(ctx context.Context, id string) (*ContactTagsResponse, *client.APIResponse, error)
+	TagsGet(ctx context.Context, id string) (*ContactTagsResponse, *client.APIResponse, error)
 
 	// Get contact by email (with tags)
 	GetContactByEmailWithTags(ctx context.Context, email string) (interface{}, *client.APIResponse, error)

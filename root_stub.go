@@ -59,8 +59,8 @@ func (c *ContactsAPI) GetContactLists(contactID string) (interface{}, *Response,
 	return nil, nil, nil
 }
 
-// GetContactTags placeholder
-func (c *ContactsAPI) GetContactTags(contactID string) (interface{}, *Response, error) {
+// TagsGetContact placeholder
+func (c *ContactsAPI) TagsGet(contactID string) (interface{}, *Response, error) {
 	return nil, nil, nil
 }
 
