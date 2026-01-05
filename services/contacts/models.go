@@ -143,7 +143,7 @@ type ContactList struct {
 	FirstName             string            `json:"first_name,omitempty"`
 	LastName              string            `json:"last_name,omitempty"`
 	Ip4Sub                string            `json:"ip4Sub,omitempty"`
-	SourceID              string            `json:"sourceid,omitempty"`
+	SourceID              int               `json:"sourceid,omitempty"`
 	AutoSyncLog           *string           `json:"autosyncLog,omitempty"`
 	Ip4Last               string            `json:"ip4_last,omitempty"`
 	Ip4Unsub              string            `json:"ip4Unsub,omitempty"`
@@ -162,7 +162,7 @@ type AddContactToListPayload struct {
 	List     string `json:"list"`
 	Contact  string `json:"contact"`
 	Status   string `json:"status"`
-	SourceID string `json:"sourceid,omitempty"`
+	SourceID int    `json:"sourceid,omitempty"`
 }
 
 // AddContactToListResponse models the response from POST /contactLists.
