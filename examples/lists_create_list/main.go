@@ -79,7 +79,7 @@ func main() {
 		req := &contacts.UpdateListStatusForContactRequest{
 			ContactList: &contacts.ContactList{
 				Contact: contact,
-				List:    out.List.ID,
+				List:    contacts.ListID(out.List.ID),
 				Status:  1, // 1 = subscribe per API
 			},
 		}

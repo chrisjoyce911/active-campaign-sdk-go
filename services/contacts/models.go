@@ -33,6 +33,34 @@ func (s SourceID) String() string {
 	return string(s)
 }
 
+// ListID represents a list ID that can be either a string or int from the API
+type ListID string
+
+// UnmarshalJSON implements json.Unmarshaler to handle both string and number values
+func (l *ListID) UnmarshalJSON(data []byte) error {
+	// First try to unmarshal as a string
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		*l = ListID(str)
+		return nil
+	}
+	
+	// If that fails, try to unmarshal as a number
+	var num int
+	if err := json.Unmarshal(data, &num); err == nil {
+		*l = ListID(strconv.Itoa(num))
+		return nil
+	}
+	
+	// If both fail, return the string unmarshal error
+	return json.Unmarshal(data, &str)
+}
+
+// String returns the string representation
+func (l ListID) String() string {
+	return string(l)
+}
+
 // Models for contacts API - these are placeholders and should match ActiveCampaign's API
 
 // CreateContactRequest is the payload when creating a contact.
@@ -161,7 +189,7 @@ type ContactData struct {
 // ContactList represents membership info for a contact on a list
 type ContactList struct {
 	Contact   string  `json:"contact,omitempty"`
-	List      string  `json:"list,omitempty"`
+	List      ListID  `json:"list,omitempty"`
 	Form      *string `json:"form,omitempty"`
 	SeriesID  string  `json:"seriesid,omitempty"`
 	SDate     string  `json:"sdate,omitempty"`
@@ -192,7 +220,7 @@ type ContactList struct {
 
 // AddContactToListPayload contains the writable fields when subscribing a contact to a list.
 type AddContactToListPayload struct {
-	List     string   `json:"list"`
+	List     ListID   `json:"list"`
 	Contact  string   `json:"contact"`
 	Status   string   `json:"status"`
 	SourceID SourceID `json:"sourceid,omitempty"`

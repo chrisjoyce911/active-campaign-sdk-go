@@ -15,7 +15,7 @@ func Test_UpdateListStatusManaged_SkipWhenUnsubscribedAndNotForce(t *testing.T) 
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 200, RespBody: body}
 	svc := NewRealServiceFromDoer(hd)
 
-	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: "l1", Status: 1}, Force: false}
+	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: ListID("l1"), Status: 1}, Force: false}
 	out, apiResp, err := svc.UpdateListStatusManaged(context.Background(), req)
 	assert.NoError(t, err)
 	assert.Nil(t, out)
@@ -33,7 +33,7 @@ func Test_UpdateListStatusManaged_ForceWhenUnsubscribed(t *testing.T) {
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 200, RespBody: body}
 	svc := NewRealServiceFromDoer(hd)
 
-	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: "l1", Status: 1}, Force: true}
+	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: ListID("l1"), Status: 1}, Force: true}
 	out, apiResp, err := svc.UpdateListStatusManaged(context.Background(), req)
 	assert.NoError(t, err)
 	assert.NotNil(t, apiResp)
@@ -55,7 +55,7 @@ func Test_UpdateListStatusManaged_CreateWhenNotPresent(t *testing.T) {
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 200, RespBody: body}
 	svc := NewRealServiceFromDoer(hd)
 
-	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: "l2", Status: 1}, Force: false}
+	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: ListID("l2"), Status: 1}, Force: false}
 	_, apiResp, err := svc.UpdateListStatusManaged(context.Background(), req)
 	assert.NoError(t, err)
 	assert.NotNil(t, apiResp)
@@ -71,7 +71,7 @@ func Test_UpdateListStatusManaged_NoOpWhenAlreadySubscribed(t *testing.T) {
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 200, RespBody: body}
 	svc := NewRealServiceFromDoer(hd)
 
-	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: "l1", Status: 1}}
+	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c1", List: ListID("l1"), Status: 1}}
 	out, apiResp, err := svc.UpdateListStatusManaged(context.Background(), req)
 	assert.NoError(t, err)
 	assert.Nil(t, out)
@@ -88,7 +88,7 @@ func Test_UpdateListStatusManaged_DefaultDesiredStatusWhenEmpty(t *testing.T) {
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 200, RespBody: body}
 	svc := NewRealServiceFromDoer(hd)
 
-	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c9", List: "l9", Status: 0}, Force: false}
+	req := &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "c9", List: ListID("l9"), Status: 0}, Force: false}
 	_, apiResp, err := svc.UpdateListStatusManaged(context.Background(), req)
 	assert.NoError(t, err)
 	assert.NotNil(t, apiResp)
@@ -122,7 +122,7 @@ func Test_UpdateListStatusManaged_ErrorsAndValidation(t *testing.T) {
 	// GetContactLists error propagation (e.g., 404)
 	hd := &testhelpers.HTTPDoer{BaseURL: "https://example.com/api/3/", RespStatus: 404, RespBody: []byte(`{"message":"No Result found for Subscriber with id 121"}`)}
 	svc = NewRealServiceFromDoer(hd)
-	out, apiResp, err = svc.UpdateListStatusManaged(context.Background(), &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "121", List: "25", Status: 1}})
+	out, apiResp, err = svc.UpdateListStatusManaged(context.Background(), &UpdateListStatusHelperRequest{ContactList: &ContactList{Contact: "121", List: ListID("25"), Status: 1}})
 	assert.Error(t, err)
 	assert.Nil(t, out)
 	if assert.NotNil(t, apiResp) {
