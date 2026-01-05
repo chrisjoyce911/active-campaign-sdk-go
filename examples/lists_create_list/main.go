@@ -78,7 +78,7 @@ func main() {
 	if contact != "" {
 		req := &contacts.UpdateListStatusForContactRequest{
 			ContactList: &contacts.ContactList{
-				Contact: contact,
+				Contact: contacts.ContactID(contact),
 				List:    contacts.ListID(out.List.ID),
 				Status:  1, // 1 = subscribe per API
 			},

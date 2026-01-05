@@ -29,7 +29,7 @@ func (s *RealService) UpdateListStatusManaged(ctx context.Context, req *UpdateLi
 	}
 
 	// Fetch current membership state
-	listsResp, apiResp, err := s.GetContactLists(ctx, cl.Contact)
+	listsResp, apiResp, err := s.GetContactLists(ctx, cl.Contact.String())
 	if err != nil {
 		// Bubble up GET error (including 404 for unknown contact)
 		return nil, apiResp, err

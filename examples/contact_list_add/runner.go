@@ -35,7 +35,7 @@ func run(ctx context.Context, svc contacts.ContactsService, cfg runConfig, apply
 		return nil
 	}
 
-	payload := &contacts.AddContactToListPayload{Contact: cfg.ContactID, List: contacts.ListID(cfg.ListID), Status: status}
+	payload := &contacts.AddContactToListPayload{Contact: contacts.ContactID(cfg.ContactID), List: contacts.ListID(cfg.ListID), Status: status}
 	resp, apiResp, err := svc.AddContactToList(ctx, payload)
 	if err != nil {
 		if apiResp != nil {

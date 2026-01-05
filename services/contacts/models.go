@@ -61,6 +61,34 @@ func (l ListID) String() string {
 	return string(l)
 }
 
+// ContactID represents a contact ID that can be either a string or int from the API
+type ContactID string
+
+// UnmarshalJSON implements json.Unmarshaler to handle both string and number values
+func (c *ContactID) UnmarshalJSON(data []byte) error {
+	// First try to unmarshal as a string
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		*c = ContactID(str)
+		return nil
+	}
+
+	// If that fails, try to unmarshal as a number
+	var num int
+	if err := json.Unmarshal(data, &num); err == nil {
+		*c = ContactID(strconv.Itoa(num))
+		return nil
+	}
+
+	// If both fail, return the string unmarshal error
+	return json.Unmarshal(data, &str)
+}
+
+// String returns the string representation
+func (c ContactID) String() string {
+	return string(c)
+}
+
 // Models for contacts API - these are placeholders and should match ActiveCampaign's API
 
 // CreateContactRequest is the payload when creating a contact.
@@ -188,15 +216,15 @@ type ContactData struct {
 
 // ContactList represents membership info for a contact on a list
 type ContactList struct {
-	Contact   string  `json:"contact,omitempty"`
-	List      ListID  `json:"list,omitempty"`
-	Form      *string `json:"form,omitempty"`
-	SeriesID  string  `json:"seriesid,omitempty"`
-	SDate     string  `json:"sdate,omitempty"`
-	UDate     *string `json:"udate,omitempty"`
-	Status    int     `json:"status,omitempty"`
-	Responder string  `json:"responder,omitempty"`
-	Sync      string  `json:"sync,omitempty"`
+	Contact   ContactID `json:"contact,omitempty"`
+	List      ListID    `json:"list,omitempty"`
+	Form      *string   `json:"form,omitempty"`
+	SeriesID  string    `json:"seriesid,omitempty"`
+	SDate     string    `json:"sdate,omitempty"`
+	UDate     *string   `json:"udate,omitempty"`
+	Status    int       `json:"status,omitempty"`
+	Responder string    `json:"responder,omitempty"`
+	Sync      string    `json:"sync,omitempty"`
 	// Additional fields commonly returned by the API on contact list membership
 	UnsubReason           string            `json:"unsubreason,omitempty"`
 	Campaign              *string           `json:"campaign,omitempty"`
@@ -220,10 +248,10 @@ type ContactList struct {
 
 // AddContactToListPayload contains the writable fields when subscribing a contact to a list.
 type AddContactToListPayload struct {
-	List     ListID   `json:"list"`
-	Contact  string   `json:"contact"`
-	Status   string   `json:"status"`
-	SourceID SourceID `json:"sourceid,omitempty"`
+	List     ListID    `json:"list"`
+	Contact  ContactID `json:"contact"`
+	Status   string    `json:"status"`
+	SourceID SourceID  `json:"sourceid,omitempty"`
 }
 
 // AddContactToListResponse models the response from POST /contactLists.
