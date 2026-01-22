@@ -1,5 +1,3 @@
-//go:build examples
-
 package main
 
 import (
@@ -14,9 +12,7 @@ import (
 )
 
 func main() {
-	if os.Getenv("ACTIVE_URL") == "" {
-		_ = godotenv.Load()
-	}
+	_ = godotenv.Load()
 
 	fs := flag.NewFlagSet("contact_add_to_list", flag.ExitOnError)
 	apply := fs.Bool("apply", false, "Execute the subscription call; default prints the request that would be sent.")
@@ -39,6 +35,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create core client: %v", err)
 	}
+
+	coreClient.SetDebug(true, os.Stderr)
 
 	svc := contacts.NewRealService(coreClient)
 	if err := run(context.Background(), svc, cfg, *apply, os.Stdout); err != nil {

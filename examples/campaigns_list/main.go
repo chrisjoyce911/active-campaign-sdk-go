@@ -18,6 +18,10 @@ var exitFn = os.Exit
 func Run(ctx context.Context, svc campaigns.CampaignsService, out io.Writer) error {
 	list, apiResp, err := svc.ListCampaigns(ctx, nil)
 
+	if apiResp.StatusCode == 429 {
+		fmt.Fprintf(out, "Rate limited! Retry after: %s\n", apiResp.RetryAfter)
+	}
+
 	if err != nil {
 		return fmt.Errorf("list campaigns: %w (api resp: %+v)", err, apiResp)
 	}

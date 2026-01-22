@@ -9,11 +9,14 @@ import (
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
 	"github.com/chrisjoyce911/active-campaign-sdk-go/services/contacts"
+	"github.com/joho/godotenv"
 )
 
 var exitFn = os.Exit
 
 func main() {
+	_ = godotenv.Load()
+
 	var (
 		envURL   = os.Getenv("ACTIVE_URL")
 		envToken = os.Getenv("ACTIVE_TOKEN")
@@ -45,10 +48,14 @@ func main() {
 		}
 		return
 	}
+	// core.SetDebug(true, os.Stderr)
 	svc := contacts.NewRealService(core)
 
 	ctx := context.Background()
 	resp, apiResp, err := svc.SearchByEmail(ctx, *email)
+	if apiResp != nil && apiResp.StatusCode == 429 {
+		fmt.Fprintf(os.Stderr, "Rate limited! Retry after: %s\n", apiResp.RetryAfter)
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error searching contact by email: %v\n", err)
 		if apiResp != nil {

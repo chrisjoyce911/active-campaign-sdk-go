@@ -10,6 +10,7 @@ type APIResponse struct {
 	HTTP       *http.Response
 	Body       []byte
 	StatusCode int
+	RetryAfter string // Retry-After header value, if present
 }
 
 // APIError represents a non-2xx response from the API.
