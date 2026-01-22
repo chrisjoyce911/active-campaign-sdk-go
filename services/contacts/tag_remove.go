@@ -22,12 +22,12 @@ import (
 //
 //	ctx: context for cancellation/timeouts
 //	contactID: the ID of the contact
-//	tag: the tag name to remove
+//	tagID: the tag ID to remove
 //
 // Returns:
 //
 //	(*client.APIResponse, error)
-func (s *RealService) TagRemove(ctx context.Context, contactID, tag string) (*client.APIResponse, error) {
+func (s *RealService) TagRemove(ctx context.Context, contactID, tagID string) (*client.APIResponse, error) {
 	// First, get the contact's tags to find the association ID
 	tagsResp, apiResp, err := s.TagsGet(ctx, contactID)
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *RealService) TagRemove(ctx context.Context, contactID, tag string) (*cl
 	// Find the tag association
 	var contactTagID string
 	for _, ct := range *tagsResp.ContactTags {
-		if ct.Tag == tag {
+		if ct.Tag == tagID {
 			contactTagID = ct.ID
 			break
 		}
