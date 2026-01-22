@@ -156,7 +156,14 @@ func (c *CoreClient) Do(ctx context.Context, method, path string, v interface{},
 		return nil, err
 	}
 
-	apiResp := &APIResponse{HTTP: resp, Body: buf, StatusCode: resp.StatusCode, RetryAfter: resp.Header.Get("Retry-After")}
+	apiResp := &APIResponse{
+		HTTP:               resp,
+		Body:               buf,
+		StatusCode:         resp.StatusCode,
+		RetryAfter:         resp.Header.Get("Retry-After"),
+		RateLimitLimit:     resp.Header.Get("RateLimit-Limit"),
+		RateLimitRemaining: resp.Header.Get("RateLimit-Remaining"),
+	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		var apiErr APIError
 		_ = json.Unmarshal(buf, &apiErr)

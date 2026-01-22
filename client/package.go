@@ -7,10 +7,12 @@ import (
 
 // APIResponse wraps the low-level HTTP response and body for debugging and inspection.
 type APIResponse struct {
-	HTTP       *http.Response
-	Body       []byte
-	StatusCode int
-	RetryAfter string // Retry-After header value, if present
+	HTTP               *http.Response
+	Body               []byte
+	StatusCode         int
+	RetryAfter         string // Retry-After header value, if present
+	RateLimitLimit     string // RateLimit-Limit header value, if present
+	RateLimitRemaining string // RateLimit-Remaining header value, if present
 }
 
 // APIError represents a non-2xx response from the API.
