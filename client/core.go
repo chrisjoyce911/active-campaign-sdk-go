@@ -16,6 +16,7 @@ type CoreClient struct {
 	BaseURL    *url.URL
 	Token      string
 	HTTPClient *http.Client
+	Cookie     string // Optional Cookie header value
 	// Debug enables verbose outgoing request logging when true.
 	Debug bool
 	// DebugWriter, if non-nil, is used as the destination for debug output.
@@ -40,6 +41,7 @@ func NewCoreClient(baseURL, token string) (*CoreClient, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &CoreClient{BaseURL: u, Token: token, HTTPClient: &http.Client{Timeout: 15 * time.Second}}, nil
 }
 
@@ -89,6 +91,21 @@ func (c *CoreClient) Do(ctx context.Context, method, path string, v interface{},
 		}
 	}
 
+	req, err := http.NewRequestWithContext(ctx, method, reqURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/json")
+	if v != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	if c.Token != "" {
+		req.Header.Set("Api-Token", c.Token)
+	}
+	if c.Cookie != "" {
+		req.Header.Set("Cookie", c.Cookie)
+	}
+
 	// Conditional debug output controlled by Debug and optional DebugFilter
 	shouldDebug := false
 	if c.Debug {
@@ -101,31 +118,31 @@ func (c *CoreClient) Do(ctx context.Context, method, path string, v interface{},
 		}
 	}
 	if shouldDebug {
-		if v != nil {
-			if bb, err := json.Marshal(v); err == nil {
-				// prefer configured writer
-				if c.DebugWriter != nil {
-					// write a short header + JSON body as string
-					_, _ = c.DebugWriter.Write([]byte("DEBUG OUTGOING " + method + " " + reqURL.String() + " body:\n"))
+		// prefer configured writer
+		if c.DebugWriter != nil {
+			_, _ = c.DebugWriter.Write([]byte("DEBUG OUTGOING " + method + " " + reqURL.String() + "\n"))
+			for k, v := range req.Header {
+				_, _ = c.DebugWriter.Write([]byte(k + ": " + strings.Join(v, ", ") + "\n"))
+			}
+			if v != nil {
+				if bb, err := json.Marshal(v); err == nil {
+					_, _ = c.DebugWriter.Write([]byte("body:\n"))
 					_, _ = c.DebugWriter.Write(bb)
 					_, _ = c.DebugWriter.Write([]byte("\n"))
-				} else {
-					log.Printf("DEBUG OUTGOING %s %s body:\n%s", method, reqURL.String(), string(bb))
+				}
+			}
+			_, _ = c.DebugWriter.Write([]byte("\n"))
+		} else {
+			log.Printf("DEBUG OUTGOING %s %s", method, reqURL.String())
+			for k, v := range req.Header {
+				log.Printf("%s: %s", k, strings.Join(v, ", "))
+			}
+			if v != nil {
+				if bb, err := json.Marshal(v); err == nil {
+					log.Printf("body:\n%s", string(bb))
 				}
 			}
 		}
-	}
-
-	req, err := http.NewRequestWithContext(ctx, method, reqURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/json")
-	if v != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-	if c.Token != "" {
-		req.Header.Set("Api-Token", c.Token)
 	}
 
 	resp, err := c.HTTPClient.Do(req)

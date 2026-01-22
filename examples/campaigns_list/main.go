@@ -17,6 +17,7 @@ var exitFn = os.Exit
 // Run prints campaign statuses using the provided campaigns service and writer.
 func Run(ctx context.Context, svc campaigns.CampaignsService, out io.Writer) error {
 	list, apiResp, err := svc.ListCampaigns(ctx, nil)
+
 	if err != nil {
 		return fmt.Errorf("list campaigns: %w (api resp: %+v)", err, apiResp)
 	}
@@ -34,10 +35,14 @@ func Run(ctx context.Context, svc campaigns.CampaignsService, out io.Writer) err
 }
 
 func main() {
-	_ = godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("godotenv error:", err)
+	}
 
 	base := os.Getenv("ACTIVE_URL")
 	token := os.Getenv("ACTIVE_TOKEN")
+	fmt.Printf("Loaded token: %s\n", token) // Debug print
 	if base == "" || token == "" {
 		fmt.Fprintln(os.Stderr, "ACTIVE_URL and ACTIVE_TOKEN must be set")
 		exitFn(1)
@@ -50,6 +55,9 @@ func main() {
 		exitFn(1)
 		return
 	}
+
+	// Enable debug logging for outgoing requests
+	core.SetDebug(true, os.Stderr)
 	svc := campaigns.NewRealService(core)
 
 	ctx := context.Background()
