@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"time"
@@ -37,88 +38,104 @@ func main() {
 	svc := contacts.NewRealService(core)
 
 	ctx := context.Background()
-	limiter := rate.NewLimiter(rate.Limit(0.5), 2) // Start conservative: 0.5 requests per second (2s per request), burst of 2
-	lastTime := time.Now()
-	apiRateLimit := rate.Limit(5.0) // API limit: 5 requests per second according to docs
+	limiter := rate.NewLimiter(rate.Limit(0.5), 1) // Start gentle: 0.5 req/s
+	minLimit := rate.Limit(0.2)                    // Never go below 0.2 req/s unless Retry-After says otherwise
+	maxScale := 0.7                                // Never exceed 70% of the advertised limit
+	rampUpFactor := 1.1                            // Grow 10% when we have headroom
 
-	for i := 1; i <= 50; i++ {
-		// Wait for rate limiter
-		err := limiter.Wait(ctx)
-		if err != nil {
-			fmt.Printf("Request %d: Rate limiter error: %v\n", i, err)
+	fmt.Println("🚀 Adaptive rate limiting (simple)")
+	fmt.Printf("📊 Initial limiter: %.2f req/s\n\n", float64(limiter.Limit()))
+
+	for i := 1; i <= 30; i++ {
+		if err := limiter.Wait(ctx); err != nil {
+			fmt.Printf("Request %d: limiter wait error: %v\n", i, err)
 			continue
 		}
 
-		fmt.Printf("Request %d: ", i)
-		start := time.Now()
+		fmt.Printf("Request %d (%.2f req/s): ", i, float64(limiter.Limit()))
 		resp, apiResp, err := svc.SearchByEmail(ctx, email)
-		duration := time.Since(start)
-		timeSinceLast := time.Since(lastTime)
 
-		// Check if we got rate limit headers and adjust our limiter accordingly
-		if apiResp != nil && apiResp.RateLimitLimit != "" {
-			if limit, parseErr := strconv.Atoi(apiResp.RateLimitLimit); parseErr == nil && limit > 0 {
-				newLimit := rate.Limit(float64(limit) * 0.8) // Use 80% of the limit to be safe
-				if newLimit != limiter.Limit() {
-					fmt.Printf("Adjusting rate limiter from %.1f to %.1f req/s based on API limit %d\n",
-						float64(limiter.Limit()), float64(newLimit), limit)
-					limiter.SetLimit(newLimit)
-					apiRateLimit = newLimit
-				}
-			}
-		}
-
-		// If RateLimit-Remaining is low, be even more conservative
-		if apiResp != nil && apiResp.RateLimitRemaining != "" {
-			if remaining, parseErr := strconv.Atoi(apiResp.RateLimitRemaining); parseErr == nil {
-				if remaining <= 2 && remaining > 0 { // Only 2 or fewer requests left
-					conservativeLimit := apiRateLimit * 0.5 // Half the rate when running low
-					if conservativeLimit < limiter.Limit() {
-						fmt.Printf("Low on requests (%d remaining), slowing down to %.1f req/s\n",
-							remaining, float64(conservativeLimit))
-						limiter.SetLimit(conservativeLimit)
-					}
-				} else if remaining == 0 {
-					fmt.Printf("No requests remaining in current window\n")
-				}
-			}
-		}
-
+		// Handle rate limit errors first
 		if apiResp != nil && apiResp.StatusCode == 429 {
-			fmt.Printf("Rate limited! Retry-After: %s, RateLimit-Limit: %s, RateLimit-Remaining: %s\n",
+			fmt.Printf("⏱️  hit rate limit (Retry-After=%s, limit=%s, remaining=%s)\n",
 				apiResp.RetryAfter, apiResp.RateLimitLimit, apiResp.RateLimitRemaining)
+			// Respect Retry-After if present, otherwise short backoff
+			sleepDuration := 1 * time.Second
 			if apiResp.RetryAfter != "" {
-				// Parse Retry-After as seconds (API docs say it's duration in seconds)
-				var sleepDuration time.Duration
 				if seconds, parseErr := time.ParseDuration(apiResp.RetryAfter + "s"); parseErr == nil {
 					sleepDuration = seconds
 				} else if secs, atoiErr := strconv.Atoi(apiResp.RetryAfter); atoiErr == nil {
 					sleepDuration = time.Duration(secs) * time.Second
-				} else {
-					fmt.Printf("Could not parse Retry-After header: %s\n", apiResp.RetryAfter)
-					continue
 				}
-				fmt.Printf("Sleeping for %v...\n", sleepDuration)
-				time.Sleep(sleepDuration)
-				lastTime = time.Now()
-				continue
 			}
+			time.Sleep(sleepDuration)
+			// Drop to a cautious rate after a 429 (halve current, but not below min and not above 30% of limit)
+			newLimit := limiter.Limit() / 2
+			if apiResp.RateLimitLimit != "" {
+				if limit, parseErr := strconv.Atoi(apiResp.RateLimitLimit); parseErr == nil && limit > 0 {
+					maxAfterHit := rate.Limit(float64(limit) * 0.3)
+					if newLimit > maxAfterHit {
+						newLimit = maxAfterHit
+					}
+				}
+			}
+			if newLimit < minLimit {
+				newLimit = minLimit
+			}
+			limiter.SetLimit(newLimit)
+			continue
 		}
 
 		if err != nil {
-			fmt.Printf("Error: %v (status=%d, duration=%v, time_since_last=%v)\n", err, apiResp.StatusCode, duration, timeSinceLast)
-		} else {
-			// Show current rate limit status
-			fmt.Printf("Success - RateLimit-Limit: %s, RateLimit-Remaining: %s",
-				apiResp.RateLimitLimit, apiResp.RateLimitRemaining)
-			if len(resp.Contacts) > 0 {
-				fmt.Printf(" (contact ID: %s, duration=%v, time_since_last=%v)\n", resp.Contacts[0].ID, duration, timeSinceLast)
-			} else {
-				fmt.Printf(" (no contacts found, duration=%v, time_since_last=%v)\n", duration, timeSinceLast)
-			}
+			fmt.Printf("❌ Error: %v\n", err)
+			continue
 		}
 
-		lastTime = time.Now()
-		// No manual sleep, rate limiter handles pacing
+		// Successful response: print minimal info
+		found := "none"
+		if len(resp.Contacts) > 0 {
+			found = resp.Contacts[0].ID
+		}
+		fmt.Printf("✅ Success (contact=%s, limit=%s, remaining=%s)\n",
+			found, apiResp.RateLimitLimit, apiResp.RateLimitRemaining)
+
+		// Adjust limiter based on headers
+		if apiResp != nil && apiResp.RateLimitLimit != "" {
+			if limit, parseErr := strconv.Atoi(apiResp.RateLimitLimit); parseErr == nil && limit > 0 {
+				remaining := limit
+				if apiResp.RateLimitRemaining != "" {
+					if r, remErr := strconv.Atoi(apiResp.RateLimitRemaining); remErr == nil {
+						remaining = r
+					}
+				}
+				ratio := float64(remaining) / float64(limit)
+
+				target := limiter.Limit()
+				maxAllowed := rate.Limit(float64(limit) * maxScale)
+				minAllowed := rate.Limit(float64(limit) * 0.2)
+				if minAllowed < minLimit {
+					minAllowed = minLimit
+				}
+
+				// Speed up cautiously when plenty of budget remains, capped
+				if ratio >= 0.7 {
+					proposed := rate.Limit(float64(limiter.Limit()) * rampUpFactor)
+					if proposed > maxAllowed {
+						proposed = maxAllowed
+					}
+					if proposed > target {
+						target = proposed
+					}
+				}
+				// Slow down early when budget gets tight; clamp to minAllowed
+				if ratio <= 0.4 {
+					target = rate.Limit(math.Max(float64(minAllowed), float64(limit)*0.3))
+				}
+
+				if target != limiter.Limit() {
+					limiter.SetLimit(target)
+				}
+			}
+		}
 	}
 }
