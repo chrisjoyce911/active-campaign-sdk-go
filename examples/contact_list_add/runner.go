@@ -17,7 +17,7 @@ type runConfig struct {
 	Status    string
 }
 
-func run(ctx context.Context, svc *contacts.RealService, cfg runConfig, apply bool, w io.Writer) error {
+func run(ctx context.Context, svc contacts.ContactsService, cfg runConfig, apply bool, w io.Writer) error {
 	if w == nil {
 		w = io.Discard
 	}

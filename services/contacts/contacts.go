@@ -50,7 +50,7 @@ type ContactsService interface {
 	CreateContactWithTags(ctx context.Context, req *CreateContactRequest, tagIDs []string) (*CreateContactResponse, *client.APIResponse, error)
 
 	// Bounce logs, goals, lists, logs, deals, geo, notes, organization, tracking
-	GetContactBounceLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactBounceLogs(ctx context.Context, id string) (*BounceLogsResponse, *client.APIResponse, error)
 	GetContactGoals(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactLists(ctx context.Context, id string) (*ContactListsResponse, *client.APIResponse, error)
 	GetContactLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)

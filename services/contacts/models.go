@@ -435,3 +435,49 @@ func (c *ContactSearchResponse) ScoreValuesOrEmpty() []ScoreValue {
 	}
 	return *c.ScoreValues
 }
+
+// BounceLog represents a single bounce log entry
+type BounceLog struct {
+	Tstamp           string         `json:"tstamp,omitempty"`
+	BounceID         string         `json:"bounceid,omitempty"`
+	SubscriberID     string         `json:"subscriberid,omitempty"`
+	CampaignID       string         `json:"campaignid,omitempty"`
+	MessageID        string         `json:"messageid,omitempty"`
+	CodeID           string         `json:"codeid,omitempty"`
+	Email            string         `json:"email,omitempty"`
+	Error            string         `json:"error,omitempty"`
+	Source           string         `json:"source,omitempty"`
+	CreatedTimestamp string         `json:"created_timestamp,omitempty"`
+	UpdatedTimestamp string         `json:"updated_timestamp,omitempty"`
+	CreatedBy        interface{}    `json:"created_by,omitempty"`
+	UpdatedBy        interface{}    `json:"updated_by,omitempty"`
+	Links            BounceLogLinks `json:"links,omitempty"`
+	ID               string         `json:"id,omitempty"`
+	Bounce           string         `json:"bounce,omitempty"`
+	Contact          string         `json:"contact,omitempty"`
+	Campaign         string         `json:"campaign,omitempty"`
+	Message          string         `json:"message,omitempty"`
+	Code             string         `json:"code,omitempty"`
+}
+
+// BounceLogLinks contains links for the bounce log
+type BounceLogLinks struct {
+	Bounce   string `json:"bounce,omitempty"`
+	Contact  string `json:"contact,omitempty"`
+	Campaign string `json:"campaign,omitempty"`
+	Message  string `json:"message,omitempty"`
+	Code     string `json:"code,omitempty"`
+}
+
+// BounceLogsResponse represents the response from GET /contacts/{id}/bounceLogs
+type BounceLogsResponse struct {
+	BounceLogs *[]BounceLog `json:"bounceLogs"`
+}
+
+// Accessor for BounceLogsResponse
+func (b *BounceLogsResponse) BounceLogsOrEmpty() []BounceLog {
+	if b == nil || b.BounceLogs == nil {
+		return []BounceLog{}
+	}
+	return *b.BounceLogs
+}

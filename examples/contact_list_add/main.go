@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
+	_ = godotenv.Overload()
 
 	fs := flag.NewFlagSet("contact_add_to_list", flag.ExitOnError)
 	apply := fs.Bool("apply", false, "Execute the subscription call; default prints the request that would be sent.")

@@ -66,7 +66,7 @@ func TestContacts_SimpleEndpointsAndAccessors(t *testing.T) {
 	require.NotNil(md)
 	svc = NewRealServiceFromDoer(md)
 	require.NotNil(svc)
-	blOut, blResp, blErr := svc.GetContactBounceLogs(context.Background(), 123)
+	blOut, blResp, blErr := svc.GetContactBounceLogs(context.Background(), "123")
 	assert.NoError(t, blErr)
 	assert.Equal(t, 200, blResp.StatusCode)
 	_ = blOut

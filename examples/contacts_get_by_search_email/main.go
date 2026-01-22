@@ -15,7 +15,7 @@ import (
 
 func main() {
 
-	_ = godotenv.Load()
+	_ = godotenv.Overload()
 	baseURL := os.Getenv("ACTIVE_URL")
 	token := os.Getenv("ACTIVE_TOKEN")
 
@@ -27,7 +27,7 @@ func main() {
 	if token == "" {
 		log.Printf("ACTIVE_TOKEN not set")
 	} else {
-		log.Printf("ACTIVE_TOKEN is set (redacted)")
+		log.Printf("ACTIVE_TOKEN is set %s", token)
 	}
 
 	// Build core client and contacts service

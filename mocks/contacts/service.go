@@ -21,7 +21,7 @@ type Service struct {
 	TagsGetFunc                            func(ctx context.Context, id string) (*contacts.ContactTagsResponse, *client.APIResponse, error)
 	GetContactByEmailWithTagsFunc          func(ctx context.Context, email string) (interface{}, *client.APIResponse, error)
 	CreateContactWithTagsFunc              func(ctx context.Context, req *contacts.CreateContactRequest, tagIDs []string) (*contacts.CreateContactResponse, *client.APIResponse, error)
-	GetContactBounceLogsFunc               func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
+	GetContactBounceLogsFunc               func(ctx context.Context, id string) (*contacts.BounceLogsResponse, *client.APIResponse, error)
 	GetContactGoalsFunc                    func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactListsFunc                    func(ctx context.Context, id string) (*contacts.ContactListsResponse, *client.APIResponse, error)
 	GetContactLogsFunc                     func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
@@ -130,11 +130,11 @@ func (m *Service) CreateContactWithTags(ctx context.Context, req *contacts.Creat
 	}
 	return &contacts.CreateContactResponse{}, &client.APIResponse{}, nil
 }
-func (m *Service) GetContactBounceLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
+func (m *Service) GetContactBounceLogs(ctx context.Context, id string) (*contacts.BounceLogsResponse, *client.APIResponse, error) {
 	if m.GetContactBounceLogsFunc != nil {
 		return m.GetContactBounceLogsFunc(ctx, id)
 	}
-	return nil, &client.APIResponse{}, nil
+	return &contacts.BounceLogsResponse{}, &client.APIResponse{}, nil
 }
 func (m *Service) GetContactGoals(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
 	if m.GetContactGoalsFunc != nil {

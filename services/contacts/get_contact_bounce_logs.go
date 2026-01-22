@@ -2,7 +2,6 @@ package contacts
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/chrisjoyce911/active-campaign-sdk-go/client"
@@ -25,10 +24,10 @@ import (
 //
 // Returns:
 //
-//	(interface{}, *client.APIResponse, error)
-func (s *RealService) GetContactBounceLogs(ctx context.Context, contactID int) (interface{}, *client.APIResponse, error) {
-	var out interface{}
-	path := "/api/3/contactBounceLogs?contact=" + fmt.Sprint(contactID)
+//	(*BounceLogsResponse, *client.APIResponse, error)
+func (s *RealService) GetContactBounceLogs(ctx context.Context, contactID string) (*BounceLogsResponse, *client.APIResponse, error) {
+	var out BounceLogsResponse
+	path := "contacts/" + contactID + "/bounceLogs"
 	apiResp, err := s.client.Do(ctx, http.MethodGet, path, nil, &out)
-	return out, apiResp, err
+	return &out, apiResp, err
 }

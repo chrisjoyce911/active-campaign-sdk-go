@@ -148,9 +148,9 @@ func TestService_FunctionsMany(t *testing.T) {
 			called++
 			return &contacts.CreateContactResponse{}, &client.APIResponse{StatusCode: 200}, nil
 		},
-		GetContactBounceLogsFunc: func(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
+		GetContactBounceLogsFunc: func(ctx context.Context, id string) (*contacts.BounceLogsResponse, *client.APIResponse, error) {
 			called++
-			return nil, &client.APIResponse{StatusCode: 200}, nil
+			return &contacts.BounceLogsResponse{}, &client.APIResponse{StatusCode: 200}, nil
 		},
 		GetContactGoalsFunc: func(ctx context.Context, id string) (interface{}, *client.APIResponse, error) {
 			called++
