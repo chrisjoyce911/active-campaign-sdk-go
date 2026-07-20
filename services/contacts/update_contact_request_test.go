@@ -20,7 +20,7 @@ func TestRealService_UpdateContact_RequestShape(t *testing.T) {
 		wantBodyContains string
 	}{
 		{name: "basic", req: &CreateContactRequest{Contact: &Contact{Email: "a@b.com", FirstName: "A"}}, respBody: []byte(`{"contact": {"id":"1","email":"a@b.com"}}`), respStatus: 200, wantPath: "contacts/1", wantMethod: "PUT", wantBodyContains: `"email":"a@b.com"`},
-		{name: "with fieldValues", req: &CreateContactRequest{Contact: &Contact{Email: "b@c.com", FieldValues: &[]FieldValue{{Field: "1", Value: "V"}}}}, respBody: []byte(`{"contact": {"id":"2","email":"b@c.com","fieldValues":[{"field":"1","value":"V"}]}}`), respStatus: 200, wantPath: "contacts/2", wantMethod: "PUT", wantBodyContains: `"fieldValues"`},
+		{name: "with fieldValues", req: &CreateContactRequest{Contact: &Contact{Email: "b@c.com", FieldValues: &FieldValueList{{Field: "1", Value: "V"}}}}, respBody: []byte(`{"contact": {"id":"2","email":"b@c.com","fieldValues":[{"field":"1","value":"V"}]}}`), respStatus: 200, wantPath: "contacts/2", wantMethod: "PUT", wantBodyContains: `"fieldValues"`},
 		{name: "validation error 422", req: &CreateContactRequest{Contact: &Contact{Email: "bad"}}, respBody: []byte(`{"errors":[{"title":"invalid","detail":"email invalid"}]}`), respStatus: 422, wantPath: "contacts/999", wantMethod: "PUT", wantBodyContains: `"email":"bad"`},
 	}
 

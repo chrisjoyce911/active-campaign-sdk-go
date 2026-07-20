@@ -36,7 +36,7 @@ func TestRealService_SyncContact(t *testing.T) {
 	svc := NewRealServiceFromDoer(md)
 	require.NotNil(svc)
 
-	fv := []FieldValue{{Field: "39", Value: "USI123"}}
+	fv := FieldValueList{{Field: "39", Value: "USI123"}}
 	req := &CreateContactRequest{Contact: &Contact{Email: "a@b.com", FieldValues: &fv}}
 
 	out, apiResp, err := svc.SyncContact(context.Background(), req)
@@ -52,4 +52,30 @@ func TestRealService_SyncContact(t *testing.T) {
 	assert.Equal(t, out.Contact.CDate, out.Contact.UDate, "freshly created contact has cdate == udate")
 	require.NotNil(out.FieldValues)
 	assert.Equal(t, "USI123", (*out.FieldValues)[0].Value)
+}
+
+func TestRealService_SyncContact_ContactFieldValueIDStrings(t *testing.T) {
+	require := require.New(t)
+
+	// Real-world sync response for an existing contact: the top-level
+	// fieldValues are objects, but contact.fieldValues is ID strings. This
+	// shape crashed the untyped decode in production on 2026-07-20.
+	body := []byte(`{
+		"fieldValues":[{"contact":"582355","field":"39","value":"3AEDEGNMS2","id":"8775187"}],
+		"contact":{"id":"582355","email":"existing@example.com",
+			"cdate":"2025-06-23T20:51:50-05:00","udate":"2026-07-20T01:51:18-05:00",
+			"fieldValues":["7873062","7873063","8775187"]}
+	}`)
+	md := &pathRecordingDoer{Resp: &client.APIResponse{StatusCode: 200}, Body: body}
+	svc := NewRealServiceFromDoer(md)
+
+	out, _, err := svc.SyncContact(context.Background(), &CreateContactRequest{Contact: &Contact{Email: "existing@example.com"}})
+	require.NoError(err, "contact.fieldValues ID strings must decode")
+	require.NotNil(out.Contact)
+	assert.Equal(t, "582355", out.Contact.ID)
+	assert.NotEqual(t, out.Contact.CDate, out.Contact.UDate, "updated contact has cdate != udate")
+	require.NotNil(out.Contact.FieldValues)
+	assert.Equal(t, "7873062", (*out.Contact.FieldValues)[0].ID)
+	require.NotNil(out.FieldValues)
+	assert.Equal(t, "3AEDEGNMS2", (*out.FieldValues)[0].Value)
 }

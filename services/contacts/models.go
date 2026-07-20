@@ -142,8 +142,10 @@ type Contact struct {
 	AccountContacts     []interface{} `json:"accountContacts,omitempty"`
 	// FieldValues allows creating/updating custom field values inline when
 	// creating or updating a contact. Each FieldValue refers to a previously
-	// created custom field by id.
-	FieldValues  *[]FieldValue     `json:"fieldValues,omitempty"`
+	// created custom field by id. On API *responses* the contact object's
+	// fieldValues is an array of fieldValue ID strings — FieldValueList
+	// accepts both shapes (strings decode to FieldValue{ID: ...}).
+	FieldValues  *FieldValueList   `json:"fieldValues,omitempty"`
 	Links        map[string]string `json:"links,omitempty"`
 	Organization interface{}       `json:"organization,omitempty"`
 }
@@ -272,6 +274,31 @@ func (r *ContactListsResponse) ContactListsOrEmpty() []ContactList {
 		return []ContactList{}
 	}
 	return *r.ContactLists
+}
+
+// FieldValueList is a list of FieldValue that tolerates both JSON shapes the
+// API uses: full objects (requests, top-level response fieldValues) and bare
+// ID strings (the contact object inside responses lists its fieldValues as
+// ["7873062", ...]). Strings decode to FieldValue{ID: s}; marshalling always
+// emits full objects, so requests are unaffected.
+type FieldValueList []FieldValue
+
+func (l *FieldValueList) UnmarshalJSON(b []byte) error {
+	var objs []FieldValue
+	if err := json.Unmarshal(b, &objs); err == nil {
+		*l = objs
+		return nil
+	}
+	var ids []string
+	if err := json.Unmarshal(b, &ids); err != nil {
+		return err
+	}
+	out := make([]FieldValue, len(ids))
+	for i, id := range ids {
+		out[i] = FieldValue{ID: id}
+	}
+	*l = out
+	return nil
 }
 
 // FieldValue represents a custom field value for a contact

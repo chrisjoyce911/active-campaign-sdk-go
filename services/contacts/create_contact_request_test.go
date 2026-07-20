@@ -19,7 +19,7 @@ func TestRealService_CreateContact_RequestShape(t *testing.T) {
 		wantBodyContains string
 	}{
 		{name: "basic create", req: &CreateContactRequest{Contact: &Contact{Email: "x@y.com", FirstName: "X"}}, respBody: []byte(`{"contact":{"id":"10","email":"x@y.com"}}`), respStatus: 201, wantBodyContains: `"email":"x@y.com"`},
-		{name: "with fieldValues", req: &CreateContactRequest{Contact: &Contact{Email: "f@v.com", FieldValues: &[]FieldValue{{Field: "1", Value: "ABC"}}}}, respBody: []byte(`{"contact":{"id":"11","email":"f@v.com","fieldValues":[{"field":"1","value":"ABC"}]}}`), respStatus: 201, wantBodyContains: `"fieldValues"`},
+		{name: "with fieldValues", req: &CreateContactRequest{Contact: &Contact{Email: "f@v.com", FieldValues: &FieldValueList{{Field: "1", Value: "ABC"}}}}, respBody: []byte(`{"contact":{"id":"11","email":"f@v.com","fieldValues":[{"field":"1","value":"ABC"}]}}`), respStatus: 201, wantBodyContains: `"fieldValues"`},
 		{name: "validation error 422", req: &CreateContactRequest{Contact: &Contact{Email: "bad"}}, respBody: []byte(`{"errors":[{"title":"invalid","detail":"email invalid"}]}`), respStatus: 422, wantBodyContains: `"email":"bad"`},
 	}
 

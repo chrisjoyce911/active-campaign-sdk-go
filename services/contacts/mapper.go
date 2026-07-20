@@ -144,7 +144,8 @@ func MapToContact(src interface{}, fieldIDByName map[string]string, tagNameToID 
 	}
 
 	if len(fvals) > 0 {
-		out.FieldValues = &fvals
+		fvl := FieldValueList(fvals)
+		out.FieldValues = &fvl
 	}
 	return out, tagIDs, nil
 }
