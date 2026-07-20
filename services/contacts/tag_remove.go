@@ -50,7 +50,36 @@ func (s *RealService) TagRemove(ctx context.Context, contactID, tagID string) (*
 		return &client.APIResponse{StatusCode: 404}, nil // Or return an error?
 	}
 
-	// Now delete the association
+	return s.TagRemoveByAssociation(ctx, contactTagID)
+}
+
+// TagRemoveByAssociation deletes a contact-tag association directly by its ID,
+// as returned in ContactTag.ID from TagsGet.
+//
+// What & Why:
+//
+//	TagRemove has to look the association up first, costing two requests per
+//	removal. A caller that has already fetched the contact's tags — e.g. to
+//	decide which of several tags actually need removing — knows the ID and can
+//	skip the lookup.
+//
+//	Removal is idempotent: if the association is already gone the API answers
+//	404, which is reported as success rather than an error. Two writers acting
+//	on the same contact would otherwise turn a harmless race into a failure.
+//
+// Parameters:
+//
+//	ctx: context for cancellation/timeouts
+//	contactTagID: the contact-tag association ID (ContactTag.ID)
+//
+// Returns:
+//
+//	(*client.APIResponse, error)
+func (s *RealService) TagRemoveByAssociation(ctx context.Context, contactTagID string) (*client.APIResponse, error) {
 	path := "contactTags/" + contactTagID
-	return s.client.Do(ctx, http.MethodDelete, path, nil, nil)
+	apiResp, err := s.client.Do(ctx, http.MethodDelete, path, nil, nil)
+	if err != nil && apiResp != nil && apiResp.StatusCode == http.StatusNotFound {
+		return apiResp, nil
+	}
+	return apiResp, err
 }

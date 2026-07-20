@@ -36,6 +36,7 @@ type Service struct {
 	GetContactTrackingLogsFunc             func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	SyncContactFunc                        func(ctx context.Context, req *contacts.CreateContactRequest) (*contacts.CreateContactResponse, *client.APIResponse, error)
 	ListTagsFunc                           func(ctx context.Context) (*contacts.ListTagsResponse, *client.APIResponse, error)
+	TagRemoveByAssociationFunc             func(ctx context.Context, contactTagID string) (*client.APIResponse, error)
 	ListTagsWithOptsFunc                   func(ctx context.Context, opts map[string]string) (*contacts.ListTagsResponse, *client.APIResponse, error)
 	AddContactToListFunc                   func(ctx context.Context, req *contacts.AddContactToListPayload) (*contacts.AddContactToListResponse, *client.APIResponse, error)
 	BulkImportContactsFunc                 func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
@@ -210,6 +211,13 @@ func (m *Service) GetContactTrackingLogs(ctx context.Context, id string) (interf
 	}
 	return nil, &client.APIResponse{}, nil
 }
+func (m *Service) TagRemoveByAssociation(ctx context.Context, contactTagID string) (*client.APIResponse, error) {
+	if m.TagRemoveByAssociationFunc != nil {
+		return m.TagRemoveByAssociationFunc(ctx, contactTagID)
+	}
+	return &client.APIResponse{}, nil
+}
+
 func (m *Service) ListTags(ctx context.Context) (*contacts.ListTagsResponse, *client.APIResponse, error) {
 	if m.ListTagsFunc != nil {
 		return m.ListTagsFunc(ctx)
