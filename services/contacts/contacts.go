@@ -74,6 +74,8 @@ type ContactsService interface {
 	// Custom fields & field groups
 	CreateCustomField(ctx context.Context, req *FieldPayload) (*FieldResponse, *client.APIResponse, error)
 	ListCustomFields(ctx context.Context) (*ListFieldsResponse, *client.APIResponse, error)
+	ListTags(ctx context.Context) (*ListTagsResponse, *client.APIResponse, error)
+	ListTagsWithOpts(ctx context.Context, opts map[string]string) (*ListTagsResponse, *client.APIResponse, error)
 	UpdateCustomField(ctx context.Context, id string, req *FieldPayload) (*FieldResponse, *client.APIResponse, error)
 	DeleteCustomField(ctx context.Context, id string) (*client.APIResponse, error)
 

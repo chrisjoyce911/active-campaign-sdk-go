@@ -35,6 +35,8 @@ type Service struct {
 	GetContactPlusAppendFunc               func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactTrackingLogsFunc             func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	SyncContactFunc                        func(ctx context.Context, req *contacts.CreateContactRequest) (*contacts.CreateContactResponse, *client.APIResponse, error)
+	ListTagsFunc                           func(ctx context.Context) (*contacts.ListTagsResponse, *client.APIResponse, error)
+	ListTagsWithOptsFunc                   func(ctx context.Context, opts map[string]string) (*contacts.ListTagsResponse, *client.APIResponse, error)
 	AddContactToListFunc                   func(ctx context.Context, req *contacts.AddContactToListPayload) (*contacts.AddContactToListResponse, *client.APIResponse, error)
 	BulkImportContactsFunc                 func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
 	GetBulkImportStatusFunc                func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
@@ -208,6 +210,20 @@ func (m *Service) GetContactTrackingLogs(ctx context.Context, id string) (interf
 	}
 	return nil, &client.APIResponse{}, nil
 }
+func (m *Service) ListTags(ctx context.Context) (*contacts.ListTagsResponse, *client.APIResponse, error) {
+	if m.ListTagsFunc != nil {
+		return m.ListTagsFunc(ctx)
+	}
+	return nil, &client.APIResponse{}, nil
+}
+
+func (m *Service) ListTagsWithOpts(ctx context.Context, opts map[string]string) (*contacts.ListTagsResponse, *client.APIResponse, error) {
+	if m.ListTagsWithOptsFunc != nil {
+		return m.ListTagsWithOptsFunc(ctx, opts)
+	}
+	return nil, &client.APIResponse{}, nil
+}
+
 func (m *Service) SyncContact(ctx context.Context, req *contacts.CreateContactRequest) (*contacts.CreateContactResponse, *client.APIResponse, error) {
 	if m.SyncContactFunc != nil {
 		return m.SyncContactFunc(ctx, req)
