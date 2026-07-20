@@ -123,6 +123,7 @@ type Contact struct {
 	Deleted             string        `json:"deleted,omitempty"`
 	Anonymized          string        `json:"anonymized,omitempty"`
 	ADate               string        `json:"adate,omitempty"`
+	CDate               string        `json:"cdate,omitempty"`
 	UDate               string        `json:"udate,omitempty"`
 	EDate               string        `json:"edate,omitempty"`
 	DeletedAt           *string       `json:"deleted_at,omitempty"`

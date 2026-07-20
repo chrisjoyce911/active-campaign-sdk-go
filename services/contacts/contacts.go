@@ -65,7 +65,7 @@ type ContactsService interface {
 	GetContactTrackingLogs(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 
 	// Sync, add to list, bulk import and status
-	SyncContact(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	SyncContact(ctx context.Context, req *CreateContactRequest) (*CreateContactResponse, *client.APIResponse, error)
 	AddContactToList(ctx context.Context, req *AddContactToListPayload) (*AddContactToListResponse, *client.APIResponse, error)
 	BulkImportContacts(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
 	GetBulkImportStatus(ctx context.Context, id string) (interface{}, *client.APIResponse, error)

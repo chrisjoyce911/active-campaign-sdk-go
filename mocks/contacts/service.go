@@ -34,7 +34,7 @@ type Service struct {
 	GetContactAccountContactsFunc          func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactPlusAppendFunc               func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	GetContactTrackingLogsFunc             func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
-	SyncContactFunc                        func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	SyncContactFunc                        func(ctx context.Context, req *contacts.CreateContactRequest) (*contacts.CreateContactResponse, *client.APIResponse, error)
 	AddContactToListFunc                   func(ctx context.Context, req *contacts.AddContactToListPayload) (*contacts.AddContactToListResponse, *client.APIResponse, error)
 	BulkImportContactsFunc                 func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
 	GetBulkImportStatusFunc                func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
@@ -208,7 +208,7 @@ func (m *Service) GetContactTrackingLogs(ctx context.Context, id string) (interf
 	}
 	return nil, &client.APIResponse{}, nil
 }
-func (m *Service) SyncContact(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+func (m *Service) SyncContact(ctx context.Context, req *contacts.CreateContactRequest) (*contacts.CreateContactResponse, *client.APIResponse, error) {
 	if m.SyncContactFunc != nil {
 		return m.SyncContactFunc(ctx, req)
 	}

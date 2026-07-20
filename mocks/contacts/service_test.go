@@ -200,7 +200,7 @@ func TestService_FunctionsMany(t *testing.T) {
 			called++
 			return nil, &client.APIResponse{StatusCode: 200}, nil
 		},
-		SyncContactFunc: func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+		SyncContactFunc: func(ctx context.Context, req *contacts.CreateContactRequest) (*contacts.CreateContactResponse, *client.APIResponse, error) {
 			called++
 			return nil, &client.APIResponse{StatusCode: 200}, nil
 		},
