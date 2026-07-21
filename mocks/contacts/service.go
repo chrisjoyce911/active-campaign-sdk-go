@@ -36,10 +36,11 @@ type Service struct {
 	GetContactTrackingLogsFunc             func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	SyncContactFunc                        func(ctx context.Context, req *contacts.CreateContactRequest) (*contacts.CreateContactResponse, *client.APIResponse, error)
 	ListTagsFunc                           func(ctx context.Context) (*contacts.ListTagsResponse, *client.APIResponse, error)
+	BulkImportStatusFunc                   func(ctx context.Context, batchID string) (*contacts.BulkImportStatusResponse, *client.APIResponse, error)
 	TagRemoveByAssociationFunc             func(ctx context.Context, contactTagID string) (*client.APIResponse, error)
 	ListTagsWithOptsFunc                   func(ctx context.Context, opts map[string]string) (*contacts.ListTagsResponse, *client.APIResponse, error)
 	AddContactToListFunc                   func(ctx context.Context, req *contacts.AddContactToListPayload) (*contacts.AddContactToListResponse, *client.APIResponse, error)
-	BulkImportContactsFunc                 func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error)
+	BulkImportContactsFunc                 func(ctx context.Context, req *contacts.BulkImportRequest) (*contacts.BulkImportResponse, *client.APIResponse, error)
 	GetBulkImportStatusFunc                func(ctx context.Context, id string) (interface{}, *client.APIResponse, error)
 	ListBulkImportStatusFunc               func(ctx context.Context, opts map[string]string) (interface{}, *client.APIResponse, error)
 	CreateCustomFieldFunc                  func(ctx context.Context, req *contacts.FieldPayload) (*contacts.FieldResponse, *client.APIResponse, error)
@@ -218,6 +219,13 @@ func (m *Service) TagRemoveByAssociation(ctx context.Context, contactTagID strin
 	return &client.APIResponse{}, nil
 }
 
+func (m *Service) BulkImportStatus(ctx context.Context, batchID string) (*contacts.BulkImportStatusResponse, *client.APIResponse, error) {
+	if m.BulkImportStatusFunc != nil {
+		return m.BulkImportStatusFunc(ctx, batchID)
+	}
+	return nil, &client.APIResponse{}, nil
+}
+
 func (m *Service) ListTags(ctx context.Context) (*contacts.ListTagsResponse, *client.APIResponse, error) {
 	if m.ListTagsFunc != nil {
 		return m.ListTagsFunc(ctx)
@@ -244,7 +252,7 @@ func (m *Service) AddContactToList(ctx context.Context, req *contacts.AddContact
 	}
 	return &contacts.AddContactToListResponse{}, &client.APIResponse{}, nil
 }
-func (m *Service) BulkImportContacts(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+func (m *Service) BulkImportContacts(ctx context.Context, req *contacts.BulkImportRequest) (*contacts.BulkImportResponse, *client.APIResponse, error) {
 	if m.BulkImportContactsFunc != nil {
 		return m.BulkImportContactsFunc(ctx, req)
 	}

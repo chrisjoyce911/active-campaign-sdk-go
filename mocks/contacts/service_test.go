@@ -208,7 +208,7 @@ func TestService_FunctionsMany(t *testing.T) {
 			called++
 			return &contacts.AddContactToListResponse{}, &client.APIResponse{StatusCode: 200}, nil
 		},
-		BulkImportContactsFunc: func(ctx context.Context, req interface{}) (interface{}, *client.APIResponse, error) {
+		BulkImportContactsFunc: func(ctx context.Context, req *contacts.BulkImportRequest) (*contacts.BulkImportResponse, *client.APIResponse, error) {
 			called++
 			return nil, &client.APIResponse{StatusCode: 200}, nil
 		},
